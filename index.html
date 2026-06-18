@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>L.L. BEAN MIDNIGHT MADNESS</title>
+<title>LLBean at Midnight</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
@@ -93,13 +93,24 @@
 
   #ascii-logo {
     text-align: center;
-    white-space: pre;
-    font-size: 10px;
-    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  #logo-line1 {
+    font-size: 42px;
+    letter-spacing: 14px;
     color: var(--green);
-    text-shadow: 0 0 8px var(--green);
-    margin-bottom: 6px;
-    letter-spacing: 1px;
+    text-shadow: 0 0 18px var(--green), 0 0 40px rgba(57,255,20,0.25);
+    line-height: 1.1;
+    font-weight: bold;
+  }
+
+  #logo-line2 {
+    font-size: 20px;
+    letter-spacing: 8px;
+    color: var(--green-mid);
+    text-shadow: 0 0 10px var(--green);
+    line-height: 1.4;
   }
 
   /* ===== STATS BAR ===== */
@@ -423,6 +434,108 @@
     letter-spacing: 2px;
   }
 
+  /* ===== INTRO SCREEN ===== */
+  #intro-screen {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    text-align: left;
+  }
+
+  #intro-screen.hidden { display: none; }
+
+  #intro-inner {
+    max-width: 640px;
+    width: 100%;
+    border: 2px solid var(--green);
+    padding: 32px 36px;
+    box-shadow: 0 0 30px var(--green-dim), inset 0 0 20px rgba(57,255,20,0.03);
+  }
+
+  #intro-inner h2 {
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--green-dim);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  #intro-inner .intro-section {
+    margin-bottom: 18px;
+  }
+
+  #intro-inner .intro-label {
+    color: var(--amber);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    text-shadow: 0 0 6px var(--amber);
+  }
+
+  #intro-inner p {
+    line-height: 1.9;
+    font-size: 14px;
+    color: var(--green);
+  }
+
+  #intro-inner ul {
+    list-style: none;
+    padding: 0;
+    line-height: 2;
+    font-size: 14px;
+  }
+
+  #intro-inner ul li::before {
+    content: '▸ ';
+    color: var(--green-dim);
+  }
+
+  #intro-divider {
+    border: none;
+    border-top: 1px solid var(--green-dim);
+    margin: 20px 0;
+  }
+
+  #begin-btn {
+    display: block;
+    width: 100%;
+    background: #000;
+    border: 2px solid var(--green);
+    color: var(--green);
+    font-family: inherit;
+    font-size: 16px;
+    padding: 14px;
+    cursor: pointer;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-align: center;
+    text-shadow: 0 0 8px var(--green);
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  #begin-btn:hover {
+    background: rgba(57,255,20,0.1);
+    box-shadow: 0 0 20px rgba(57,255,20,0.35);
+  }
+
+  #begin-hint {
+    text-align: center;
+    font-size: 11px;
+    color: var(--green-dim);
+    margin-top: 10px;
+    letter-spacing: 1px;
+    animation: blink 1.2s step-end infinite;
+  }
+
   /* scrollbar */
   #narrative-box::-webkit-scrollbar { width: 6px; }
   #narrative-box::-webkit-scrollbar-track { background: #000; }
@@ -447,13 +560,9 @@
   <div id="header">
     <div id="title-bar">* * * FREEPORT, MAINE — 2:14 A.M. * * *</div>
     <div id="ascii-logo">
-██╗     ██╗     ██████╗ ███████╗ █████╗ ███╗   ██╗    ███╗   ███╗██╗██████╗ ███╗  ██╗██╗ ██████╗ ██╗  ██╗████████╗
-██║     ██║     ██╔══██╗██╔════╝██╔══██╗████╗  ██║    ████╗ ████║██║██╔══██╗████╗ ██║██║██╔════╝ ██║  ██║╚══██╔══╝
-██║     ██║     ██████╔╝█████╗  ███████║██╔██╗ ██║    ██╔████╔██║██║██║  ██║██╔██╗██║██║██║  ███╗███████║   ██║
-██║     ██║     ██╔══██╗██╔══╝  ██╔══██║██║╚██╗██║    ██║╚██╔╝██║██║██║  ██║██║╚████║██║██║   ██║██╔══██║   ██║
-███████╗███████╗██████╔╝███████╗██║  ██║██║ ╚████║    ██║ ╚═╝ ██║██║██████╔╝██║ ╚███║██║╚██████╔╝██║  ██║   ██║
-╚══════╝╚══════╝╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝    ╚═╝     ╚═╝╚═╝╚═════╝ ╚═╝  ╚══╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝
-                              *** MIDNIGHT MADNESS ***</div>
+      <div id="logo-line1">LL BEAN</div>
+      <div id="logo-line2">AT MIDNIGHT</div>
+    </div>
   </div>
 
   <!-- STATS BAR -->
@@ -516,6 +625,45 @@
     <span id="inv-items"></span>
   </div>
 
+</div>
+
+<!-- INTRO SCREEN -->
+<div id="intro-screen">
+  <div id="intro-inner">
+    <h2>* * * Your Situation * * *</h2>
+
+    <div class="intro-section">
+      <div class="intro-label">Who You Are</div>
+      <p>You are <strong>Ernie</strong>, a local woodsman. You came into the L.L. Bean flagship store in Freeport, Maine for a new pair of boots. Simple enough.</p>
+    </div>
+
+    <div class="intro-section">
+      <div class="intro-label">What Happened</div>
+      <p>You accidentally took a long nap inside a display tent. You just woke up. It is <strong>2:14 AM</strong>. Your wife, <strong>Ida</strong>, is waiting outside in the idling '79 Subaru Brat. She has been waiting a while.</p>
+    </div>
+
+    <div class="intro-section">
+      <div class="intro-label">The Problem</div>
+      <p>The store never closes. Unfortunately, neither do the tourists — <strong>Flatlanders</strong> from New Jersey and New York who drank too much Starbucks and are buying $400 moose-print pajamas. If you get trapped in a conversation with them, you lose precious time.</p>
+    </div>
+
+    <hr id="intro-divider">
+
+    <div class="intro-section">
+      <div class="intro-label">The Rules</div>
+      <ul>
+        <li>You have <strong>60 minutes</strong> before dawn. Moving between sections costs 5 min.</li>
+        <li>Getting cornered by a Flatlander costs <strong>10–15 minutes</strong>.</li>
+        <li>Your <strong>Dry Wit</strong> stat lets you escape with a well-timed "Ayuh." Build it up.</li>
+        <li>Find items — Moxie, Flannel, Maple Syrup — to gain edges.</li>
+        <li>Get your boots. Get to the Brat. <strong>Do not miss morning fishing.</strong></li>
+        <li>If your timer hits zero, Ida will kill you.</li>
+      </ul>
+    </div>
+
+    <button id="begin-btn" onclick="beginGame()">[ PRESS ENTER TO BEGIN ]</button>
+    <div id="begin-hint">— or press the Enter key —</div>
+  </div>
 </div>
 
 <!-- END SCREEN -->
@@ -1250,9 +1398,21 @@ Boots: STILL NOT GOTTEN.
 }
 
 // ═══════════════════════════════════════════════
-//  BOOT
+//  INTRO / BOOT
 // ═══════════════════════════════════════════════
-initGame();
+function beginGame() {
+  document.getElementById('intro-screen').classList.add('hidden');
+  initGame();
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !document.getElementById('intro-screen').classList.contains('hidden')) {
+    beginGame();
+  }
+});
+
+// Show intro on load
+document.getElementById('intro-screen').classList.remove('hidden');
 </script>
 </body>
 </html>
