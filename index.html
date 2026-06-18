@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L.L. BEAN MIDNIGHT MADNESS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --green: #39FF14;
+    --green-dim: #1a7a0a;
+    --green-mid: #22cc08;
+    --black: #000000;
+    --amber: #FFB300;
+    --red: #FF2200;
+    --scanline: rgba(0,0,0,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--black);
+    color: var(--green);
+    font-family: 'Share Tech Mono', 'Courier New', 'Lucida Console', monospace;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* CRT scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      var(--scanline) 0px,
+      var(--scanline) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* CRT glow flicker */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at center, rgba(57,255,20,0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 998;
+    animation: flicker 8s infinite;
+  }
+
+  @keyframes flicker {
+    0%, 95%, 100% { opacity: 1; }
+    96% { opacity: 0.85; }
+    97% { opacity: 1; }
+    98% { opacity: 0.9; }
+    99% { opacity: 1; }
+  }
+
+  #wrapper {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 10px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== HEADER ===== */
+  #header {
+    border: 2px solid var(--green);
+    border-bottom: none;
+    padding: 8px 14px;
+    background: #000;
+    box-shadow: 0 0 12px var(--green-dim), inset 0 0 6px rgba(57,255,20,0.05);
+  }
+
+  #title-bar {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--green-dim);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  #ascii-logo {
+    text-align: center;
+    white-space: pre;
+    font-size: 10px;
+    line-height: 1.2;
+    color: var(--green);
+    text-shadow: 0 0 8px var(--green);
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  /* ===== STATS BAR ===== */
+  #stats-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 2px solid var(--green);
+    border-bottom: none;
+    padding: 6px 14px;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: #000;
+    box-shadow: 0 0 12px var(--green-dim);
+  }
+
+  .stat-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .stat-label {
+    color: var(--green-dim);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .stat-value {
+    color: var(--green);
+    font-weight: bold;
+    text-shadow: 0 0 6px var(--green);
+  }
+
+  .stat-value.warning { color: var(--amber); text-shadow: 0 0 6px var(--amber); }
+  .stat-value.danger  { color: var(--red);   text-shadow: 0 0 6px var(--red);   animation: pulse-red 1s infinite; }
+
+  @keyframes pulse-red {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.5; }
+  }
+
+  /* Wit bar */
+  #wit-bar-outer {
+    width: 100px;
+    height: 12px;
+    border: 1px solid var(--green);
+    background: #000;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #wit-bar-inner {
+    height: 100%;
+    background: var(--green);
+    transition: width 0.4s;
+    box-shadow: 0 0 6px var(--green);
+  }
+
+  /* Time bar */
+  #time-bar-outer {
+    width: 120px;
+    height: 12px;
+    border: 1px solid var(--green);
+    background: #000;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #time-bar-inner {
+    height: 100%;
+    background: var(--green);
+    transition: width 0.5s;
+  }
+
+  /* ===== SECTION INDICATOR ===== */
+  #section-bar {
+    border: 2px solid var(--green);
+    border-bottom: none;
+    padding: 5px 14px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--green-dim);
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    background: #000;
+  }
+
+  .section-node {
+    padding: 1px 6px;
+    border: 1px solid var(--green-dim);
+    color: var(--green-dim);
+    transition: all 0.3s;
+  }
+
+  .section-node.done   { color: var(--green-dim); border-color: var(--green-dim); opacity: 0.5; }
+  .section-node.active { color: var(--green); border-color: var(--green); text-shadow: 0 0 6px var(--green); background: rgba(57,255,20,0.07); }
+  .section-node.future { color: #1a3a0a; border-color: #1a3a0a; }
+  .section-sep { color: var(--green-dim); align-self: center; }
+
+  /* ===== MAIN CONTENT ===== */
+  #main {
+    border: 2px solid var(--green);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+    box-shadow: 0 0 20px var(--green-dim), inset 0 0 30px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #narrative-box {
+    flex: 1;
+    padding: 20px 24px;
+    min-height: 220px;
+    overflow-y: auto;
+    border-bottom: 1px solid var(--green-dim);
+  }
+
+  #narrative-text {
+    white-space: pre-wrap;
+    line-height: 1.9;
+    font-size: 15px;
+    color: var(--green);
+    text-shadow: 0 0 4px rgba(57,255,20,0.4);
+  }
+
+  /* Typewriter cursor */
+  #narrative-text::after {
+    content: '▋';
+    animation: blink 0.8s step-end infinite;
+    color: var(--green);
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  /* ===== ENCOUNTER POPUP ===== */
+  #encounter-popup {
+    display: none;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid var(--amber);
+    background: #000;
+    padding: 20px 28px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 0 30px rgba(255,179,0,0.3), inset 0 0 15px rgba(255,179,0,0.05);
+    z-index: 100;
+    text-align: center;
+  }
+
+  #encounter-popup h3 {
+    color: var(--amber);
+    font-size: 12px;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 8px var(--amber);
+  }
+
+  #encounter-text {
+    color: var(--green);
+    margin-bottom: 16px;
+    line-height: 1.8;
+    font-size: 14px;
+  }
+
+  /* ===== CHOICES ===== */
+  #choices-box {
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 160px;
+    border-top: 1px solid var(--green-dim);
+  }
+
+  .choice-btn {
+    background: #000;
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 9px 16px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+  }
+
+  .choice-btn::before {
+    content: '> ';
+    color: var(--green-dim);
+    transition: color 0.15s;
+  }
+
+  .choice-btn:hover {
+    background: rgba(57,255,20,0.09);
+    border-color: var(--green);
+    box-shadow: 0 0 10px rgba(57,255,20,0.2), inset 0 0 5px rgba(57,255,20,0.05);
+    text-shadow: 0 0 6px var(--green);
+  }
+
+  .choice-btn:hover::before { color: var(--green); }
+
+  .choice-btn:active {
+    background: rgba(57,255,20,0.18);
+    transform: translateX(2px);
+  }
+
+  .choice-btn.encounter-btn {
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+  .choice-btn.encounter-btn::before { color: var(--amber); }
+  .choice-btn.encounter-btn:hover { background: rgba(255,179,0,0.09); box-shadow: 0 0 10px rgba(255,179,0,0.2); }
+
+  /* ===== INVENTORY ===== */
+  #inventory-bar {
+    border: 2px solid var(--green);
+    border-top: none;
+    padding: 8px 14px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    background: #000;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    box-shadow: 0 0 12px var(--green-dim);
+  }
+
+  #inv-label {
+    color: var(--green-dim);
+    text-transform: uppercase;
+    font-size: 11px;
+    margin-right: 4px;
+    white-space: nowrap;
+  }
+
+  .inv-item {
+    padding: 2px 8px;
+    border: 1px solid var(--green-dim);
+    color: var(--green);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .inv-item.highlight {
+    border-color: var(--amber);
+    color: var(--amber);
+    text-shadow: 0 0 4px var(--amber);
+  }
+
+  /* ===== GAME OVER / WIN ===== */
+  #end-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 500;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    text-align: center;
+  }
+
+  #end-screen.show { display: flex; }
+
+  #end-title {
+    font-size: 22px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px currentColor;
+    white-space: pre-wrap;
+  }
+
+  #end-body {
+    max-width: 560px;
+    line-height: 2;
+    font-size: 15px;
+    margin-bottom: 30px;
+    white-space: pre-wrap;
+  }
+
+  #restart-btn {
+    background: #000;
+    border: 2px solid var(--green);
+    color: var(--green);
+    font-family: inherit;
+    font-size: 16px;
+    padding: 12px 36px;
+    cursor: pointer;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    text-shadow: 0 0 6px var(--green);
+  }
+
+  #restart-btn:hover {
+    background: rgba(57,255,20,0.12);
+    box-shadow: 0 0 20px rgba(57,255,20,0.4);
+  }
+
+  #end-score {
+    margin-top: 16px;
+    color: var(--green-dim);
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  /* scrollbar */
+  #narrative-box::-webkit-scrollbar { width: 6px; }
+  #narrative-box::-webkit-scrollbar-track { background: #000; }
+  #narrative-box::-webkit-scrollbar-thumb { background: var(--green-dim); }
+
+  /* mobile */
+  @media (max-width: 600px) {
+    body { font-size: 13px; }
+    #ascii-logo { font-size: 7px; }
+    #stats-bar { font-size: 11px; }
+    #time-bar-outer, #wit-bar-outer { width: 80px; }
+    #narrative-box { padding: 14px 14px; }
+    #choices-box { padding: 12px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="wrapper">
+
+  <!-- HEADER -->
+  <div id="header">
+    <div id="title-bar">* * * FREEPORT, MAINE — 2:14 A.M. * * *</div>
+    <div id="ascii-logo">
+██╗     ██╗     ██████╗ ███████╗ █████╗ ███╗   ██╗    ███╗   ███╗██╗██████╗ ███╗  ██╗██╗ ██████╗ ██╗  ██╗████████╗
+██║     ██║     ██╔══██╗██╔════╝██╔══██╗████╗  ██║    ████╗ ████║██║██╔══██╗████╗ ██║██║██╔════╝ ██║  ██║╚══██╔══╝
+██║     ██║     ██████╔╝█████╗  ███████║██╔██╗ ██║    ██╔████╔██║██║██║  ██║██╔██╗██║██║██║  ███╗███████║   ██║
+██║     ██║     ██╔══██╗██╔══╝  ██╔══██║██║╚██╗██║    ██║╚██╔╝██║██║██║  ██║██║╚████║██║██║   ██║██╔══██║   ██║
+███████╗███████╗██████╔╝███████╗██║  ██║██║ ╚████║    ██║ ╚═╝ ██║██║██████╔╝██║ ╚███║██║╚██████╔╝██║  ██║   ██║
+╚══════╝╚══════╝╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝    ╚═╝     ╚═╝╚═╝╚═════╝ ╚═╝  ╚══╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝
+                              *** MIDNIGHT MADNESS ***</div>
+  </div>
+
+  <!-- STATS BAR -->
+  <div id="stats-bar">
+    <div class="stat-block">
+      <span class="stat-label">TIME:</span>
+      <span class="stat-value" id="time-display">60 MIN</span>
+      <div id="time-bar-outer"><div id="time-bar-inner" style="width:100%"></div></div>
+    </div>
+    <div class="stat-block">
+      <span class="stat-label">DRY WIT:</span>
+      <div id="wit-bar-outer"><div id="wit-bar-inner" style="width:40%"></div></div>
+      <span class="stat-value" id="wit-display">40</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-label">STEALTH:</span>
+      <span class="stat-value" id="stealth-display">BASE</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-label">BOOTS:</span>
+      <span class="stat-value" id="boots-display">NOT YET</span>
+    </div>
+  </div>
+
+  <!-- SECTION PROGRESS -->
+  <div id="section-bar">
+    <span class="section-node" id="sn-0">CAMPING GEAR</span>
+    <span class="section-sep">──►</span>
+    <span class="section-node" id="sn-1">TROUT POND</span>
+    <span class="section-sep">──►</span>
+    <span class="section-node" id="sn-2">BOOT DECK</span>
+    <span class="section-sep">──►</span>
+    <span class="section-node" id="sn-3">FLANNEL RACKS</span>
+    <span class="section-sep">──►</span>
+    <span class="section-node" id="sn-4">EXIT VESTIBULE</span>
+  </div>
+
+  <!-- MAIN GAME AREA -->
+  <div id="main">
+    <!-- ENCOUNTER POPUP -->
+    <div id="encounter-popup">
+      <h3>⚠ FLATLANDER ENCOUNTER ⚠</h3>
+      <div id="encounter-text"></div>
+      <div id="encounter-choices" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
+    <!-- NARRATIVE -->
+    <div id="narrative-box">
+      <div id="narrative-text"></div>
+    </div>
+
+    <!-- CHOICES -->
+    <div id="choices-box" id="choices-box">
+    </div>
+  </div>
+
+  <!-- INVENTORY -->
+  <div id="inventory-bar">
+    <span id="inv-label">PACK:</span>
+    <span id="inv-items"></span>
+  </div>
+
+</div>
+
+<!-- END SCREEN -->
+<div id="end-screen">
+  <div id="end-title"></div>
+  <div id="end-body"></div>
+  <div id="end-score"></div>
+  <button id="restart-btn" onclick="initGame()">[ PLAY AGAIN ]</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════════
+let G = {};
+
+function initGame() {
+  G = {
+    time: 60,
+    wit: 40,
+    stealth: false,       // flannel shirt bonus
+    hasMoxie: false,
+    hasMaple: false,
+    hasLifesavers: true,
+    hasKnife: true,
+    hasFlannel: false,
+    hasBoots: false,
+    section: 0,           // 0-4
+    sectionsVisited: new Set(),
+    gameOver: false,
+    won: false,
+    bootsFound: false,
+    moxieFound: false,
+    mapleFound: false,
+    flannelFound: false,
+    turnsInSection: 0,
+    encounterActive: false,
+  };
+
+  document.getElementById('end-screen').classList.remove('show');
+  renderStats();
+  renderInventory();
+  updateSectionNodes();
+  goToSection(0, true);
+}
+
+// ═══════════════════════════════════════════════
+//  SECTIONS
+// ═══════════════════════════════════════════════
+const SECTIONS = [
+  {
+    id: 0,
+    name: 'CAMPING GEAR',
+    entryText: () => `You claw your way out of a Mountainsmith base-camp display tent. A foam sleeping pad sticker is stuck to your cheek. The Camping Gear section stretches out before you — a cathedral of Gore-Tex in the dark. Headlamps hang like sleeping bats. The faint smell of DEET and ambition hangs in the air.
+
+Ida is outside in the Brat. The engine's been idling since midnight. You can almost hear her tapping the steering wheel.
+
+Objective: get to the Boot Deck. Pick up your Bean Boots. Get out. Simple.
+
+You peek around a tent pole. One tourist in a Harvard Lampoon sweatshirt is squinting at a $340 camp stove like it owes him money.`,
+    choices: () => [
+      { text: 'Hug the wall toward the Trout Pond display', action: () => moveToSection(1) },
+      { text: 'Grab a headlamp from the rack (sneak past tourist)', action: () => sneakAction() },
+      G.hasLifesavers && !G.wit > 80 ? null : { text: 'Offer Lifesavers to distract the tourist', action: () => lifeAction() },
+    ].filter(Boolean),
+  },
+  {
+    id: 1,
+    name: 'TROUT POND',
+    entryText: () => `You push past a rack of quick-dry fishing vests and nearly walk into L.L. Bean's famous indoor Trout Pond. The water is perfectly still. A taxidermied brook trout eyes you with quiet judgment. There's a display canoe you could hide behind.
+
+To your left: the Boot Deck stairs. To your right: a couple from Hoboken is photographing themselves with the pond. She has a ring light. He is wearing Crocs at 2 AM in Maine.${G.hasMoxie ? '' : '\n\nYou notice a single can of Moxie sitting on a bench near the pond. Someone left it behind. Possibly as an offering.'}${G.hasFlannel || G.flannelFound ? '' : ''}`,
+    choices: () => [
+      { text: 'Creep past the Hoboken couple toward the Boot Deck', action: () => moveToSection(2) },
+      !G.moxieFound ? { text: 'Grab that Moxie off the bench', action: () => grabMoxie() } : null,
+      { text: 'Hide in the display canoe and wait for them to leave', action: () => waitInCanoe() },
+      { text: 'Mutter "Good evening" and just walk through like you own the place', action: () => ownerWalk() },
+    ].filter(Boolean),
+  },
+  {
+    id: 2,
+    name: 'BOOT DECK',
+    entryText: () => `You're on the Boot Deck. The smell hits you first — leather and rubber and a hundred years of Yankee pragmatism. Rows of Bean Boots gleam under the emergency lighting like small, sensible gods.
+
+Your size is right there on the third shelf. 10.5 Wide. Just like you called in last Tuesday.
+
+Unfortunately: between you and those boots stands a man named Todd from Darien, Connecticut. Todd is wearing a Patagonia vest over a dress shirt at 2 AM. Todd is holding three boxes of boots and has not yet decided. Todd is asking a floor associate named Kayla if the moc-toe comes in "slate blue."
+
+Kayla looks like she has left her body.`,
+    choices: () => [
+      G.hasMaple ? { text: 'Leave the Maple Syrup as a trail distraction — Todd follows the drizzle', action: () => mapleDistract() } : null,
+      { text: 'Deploy a withering "Ayuh" and shoulder past Todd', action: () => deployWit('Boot Deck') },
+      { text: 'Ask Kayla a complicated question in the opposite direction', action: () => distractKayla() },
+      !G.mapleFound ? { text: 'Spot a jar of Stonewall Kitchen maple syrup in the gift display', action: () => grabMaple() } : null,
+      G.hasBoots ? { text: '[Boots in hand] — Head to Flannel Racks', action: () => moveToSection(3) } : null,
+    ].filter(Boolean),
+  },
+  {
+    id: 3,
+    name: 'FLANNEL RACKS',
+    entryText: () => `The Flannel Racks section is a warm, plaid wilderness of 100% cotton in every combination of red, green, and the deep forest dignity of a man who heats with wood.
+
+You've got your boots. Now you just have to reach the Exit Vestibule.${G.hasFlannel ? '\n\nYour flannel shirt is doing its work — you move quieter, blend into the merchandise.' : '\n\nThere\'s a gorgeous chamois shirt in your size hanging right there. Buffer Green, XL. It\'s calling to you.'}
+
+Two women from the Upper West Side are having a full philosophical debate about the merits of "rustic" versus "cottagecore." One is filming for Instagram. The other is holding seventeen items and seems to be dissociating.`,
+    choices: () => [
+      !G.flannelFound ? { text: 'Grab that chamois shirt — put it on for stealth', action: () => grabFlannel() } : null,
+      G.hasFlannel ? { text: '[Stealth active] Glide past like a native — head to Exit', action: () => moveToSection(4, true) } : null,
+      { text: 'Navigate through the racks toward the Exit Vestibule', action: () => moveToSection(4) },
+      G.hasLifesavers ? { text: 'Drop Lifesavers on the floor as a crinkly distraction', action: () => dropLifesavers() } : null,
+      { text: 'Nod gravely and say "Wicked good choice" — they\'re confused, you\'re gone', action: () => deployWit('Flannel Racks') },
+    ].filter(Boolean),
+  },
+  {
+    id: 4,
+    name: 'EXIT VESTIBULE',
+    entryText: () => `You can see it. The famous L.L. Bean Boot statue outside. The parking lot. Ida's Brat, engine idling, exhaust fog drifting in the cold June air.
+
+The Exit Vestibule. Twenty feet of revolving door glory stand between you and freedom.
+
+But of course — there's one last obstacle. A man in khaki shorts — despite it being 48 degrees — is asking the door greeter about the store's return policy. His wife is taking notes on her phone. They are from New Jersey. This is evident without asking.
+
+You can hear the Brat's engine. You can almost smell the coffee Ida definitely did NOT bring you.`,
+    choices: () => [
+      G.hasBoots ? { text: 'Make your move — stride through with purpose', action: () => finalEscape() } : { text: 'You need boots first! Head back to the Boot Deck.', action: () => goToSection(2) },
+      { text: 'Deploy maximum Dry Wit: "Store closes at never. Good luck." Exit.', action: () => deployWit('Exit') },
+      G.hasMaple ? { text: 'Leave the maple syrup on the bench — the Jerseyites investigate', action: () => finalMaple() } : null,
+    ].filter(Boolean),
+  },
+];
+
+// ═══════════════════════════════════════════════
+//  ENCOUNTERS (random pop-up events)
+// ═══════════════════════════════════════════════
+const ENCOUNTERS = [
+  {
+    text: `You step on a squeaky boot sample in the aisle.
+
+A tourist from Connecticut — cargo shorts, Nantucket Red hat — swivels his head like a meerkat. He has spotted you.
+
+"Excuse me, do you WORK here?"`,
+    options: [
+      { text: 'Say "No, sir" and walk briskly', timeCost: 5, witGain: 5, desc: '-5 min' },
+      { text: 'Deploy Ayuh: stare blankly, nod once, keep moving', timeCost: 0, witGain: 15, desc: 'Wit test', isWitTest: true, witThreshold: 50 },
+      { text: 'Say "Yep" and let him ask his question', timeCost: 12, witGain: 0, desc: '-12 min (he has 14 questions)' },
+    ],
+  },
+  {
+    text: `A woman in L.L. Bean's finest puffer vest rolls up with a cart absolutely stacked with merchandise. She looks at you.
+
+"OH! Are you the night manager? Thank GOD. I have some questions about the Duck Boots. Like, at least forty."`,
+    options: [
+      { text: '"Ma\'am, I am a customer. God bless." Keep moving.', timeCost: 5, witGain: 10, desc: '-5 min' },
+      { text: 'Point vaguely toward sporting goods and disappear', timeCost: 3, witGain: 15, desc: '-3 min' },
+      { text: 'Answer one question — it becomes forty', timeCost: 15, witGain: -5, desc: '-15 min 💀' },
+    ],
+  },
+  {
+    text: `You round a corner and nearly collide with a man recording a TikTok tour of the store. Ring light. Gimbal. The whole apparatus.
+
+"Dude, you HAVE to be in this. It'll go viral. This is AUTHENTIC Maine Man content."`,
+    options: [
+      { text: 'Walk through the shot. Say nothing.', timeCost: 3, witGain: 20, desc: '-3 min (legendary)' },
+      { text: '"No thank you." Duck behind a canoe rack.', timeCost: 5, witGain: 5, desc: '-5 min' },
+      { text: 'Get filmed. They want to know about your knife.', timeCost: 13, witGain: -10, desc: '-13 min 🎥' },
+    ],
+  },
+  {
+    text: `A family of five has constructed a picnic on the floor of the camping section using L.L. Bean display gear. Dad is brewing actual coffee on a display camp stove. He spots you.
+
+"Hey! You local? What's the best breakfast spot? We need something authentic. No chains."`,
+    options: [
+      { text: '"Red\'s Eats. Wiscasset. Now if you\'ll excuse me."', timeCost: 4, witGain: 10, desc: '-4 min' },
+      { text: 'Shrug. Walk away slowly.', timeCost: 6, witGain: 5, desc: '-6 min' },
+      { text: 'Give them the full rundown — they have follow-up questions', timeCost: 14, witGain: -5, desc: '-14 min 🥐' },
+    ],
+  },
+  {
+    text: `A teenager from suburban Boston is trying on Bean Boots while talking loudly on speakerphone about whether the boots are "ironic enough."
+
+She drops her phone, which slides across the floor and stops at your foot. You make eye contact.`,
+    options: [
+      { text: 'Hand phone back. Nod once. Keep moving.', timeCost: 3, witGain: 5, desc: '-3 min' },
+      { text: 'Kick phone gently back, eyes forward, zero acknowledgment', timeCost: 0, witGain: 15, desc: 'Utter legend' },
+      { text: 'She now thinks you\'re interesting and wants your "vibe"', timeCost: 10, witGain: -5, desc: '-10 min 📱' },
+    ],
+  },
+  {
+    text: `Two men in Vineyard Vines performance polos are standing in the middle of the aisle debating whether a $600 tent "justifies itself as a lifestyle investment."
+
+They are blocking the entire corridor. Completely. On both sides.`,
+    options: [
+      { text: '"Excuse me, boys." Push through calmly.', timeCost: 5, witGain: 5, desc: '-5 min' },
+      { text: '"A tent is to sleep in. Good night." Part them like a sea.', timeCost: 2, witGain: 20, desc: '-2 min (Wit check)', isWitTest: true, witThreshold: 55 },
+      { text: 'Find alternate route through the camping kitchen display', timeCost: 8, witGain: 0, desc: '-8 min' },
+    ],
+  },
+];
+
+// ═══════════════════════════════════════════════
+//  CORE DISPLAY
+// ═══════════════════════════════════════════════
+function setText(txt) {
+  document.getElementById('narrative-text').textContent = txt;
+  document.getElementById('narrative-box').scrollTop = 0;
+}
+
+function setChoices(choices) {
+  const box = document.getElementById('choices-box');
+  box.innerHTML = '';
+  choices.forEach(c => {
+    if (!c) return;
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c.text;
+    btn.onclick = c.action;
+    box.appendChild(btn);
+  });
+}
+
+function renderStats() {
+  const tv = document.getElementById('time-display');
+  const tbi = document.getElementById('time-bar-inner');
+  const wbi = document.getElementById('wit-bar-inner');
+  const wd  = document.getElementById('wit-display');
+  const sd  = document.getElementById('stealth-display');
+  const bd  = document.getElementById('boots-display');
+
+  tv.textContent = G.time + ' MIN';
+  tv.className = 'stat-value' + (G.time <= 15 ? ' danger' : G.time <= 30 ? ' warning' : '');
+
+  tbi.style.width = Math.max(0, (G.time / 60) * 100) + '%';
+  tbi.style.background = G.time <= 15 ? 'var(--red)' : G.time <= 30 ? 'var(--amber)' : 'var(--green)';
+
+  wbi.style.width = G.wit + '%';
+  wd.textContent = G.wit;
+
+  sd.textContent = G.stealth ? '+20% FLANNEL' : 'BASE';
+  sd.className = 'stat-value' + (G.stealth ? ' highlight' : '');
+
+  bd.textContent = G.hasBoots ? 'GOT \'EM ✓' : 'NOT YET';
+  bd.className = 'stat-value' + (G.hasBoots ? '' : '');
+}
+
+function renderInventory() {
+  const items = [];
+  if (G.hasKnife)     items.push({ label: '🔪 Dull Pocket Knife', hl: false });
+  if (G.hasLifesavers)items.push({ label: '🍬 Wintergreen Lifesavers', hl: false });
+  if (G.hasMoxie)     items.push({ label: '🥤 Moxie (+15 min ready)', hl: true });
+  if (G.hasMaple)     items.push({ label: '🍁 Maple Syrup (distraction)', hl: true });
+  if (G.hasFlannel)   items.push({ label: '🟫 Chamois Flannel Shirt (+Stealth)', hl: true });
+  if (G.hasBoots)     items.push({ label: '👢 Bean Boots (10.5W)', hl: true });
+
+  const box = document.getElementById('inv-items');
+  box.innerHTML = items.map(i =>
+    `<span class="inv-item${i.hl ? ' highlight' : ''}">${i.label}</span>`
+  ).join('');
+}
+
+function updateSectionNodes() {
+  for (let i = 0; i < 5; i++) {
+    const el = document.getElementById('sn-' + i);
+    if (i < G.section)      el.className = 'section-node done';
+    else if (i === G.section) el.className = 'section-node active';
+    else                     el.className = 'section-node future';
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  SECTION NAVIGATION
+// ═══════════════════════════════════════════════
+function goToSection(idx, skipCost) {
+  if (!skipCost) {
+    spendTime(5, 'Moving between sections');
+    if (G.gameOver) return;
+  }
+  G.section = idx;
+  G.turnsInSection = 0;
+  updateSectionNodes();
+
+  const sec = SECTIONS[idx];
+  setText(sec.entryText());
+  setChoices(sec.choices());
+  renderStats();
+
+  // Random encounter check (not on first section or on win-path)
+  if (!skipCost && Math.random() < 0.55) {
+    setTimeout(() => triggerEncounter(), 400);
+  }
+}
+
+function moveToSection(idx, stealthy) {
+  const cost = stealthy && G.stealth ? 3 : 5;
+  spendTime(cost, null);
+  if (G.gameOver) return;
+  G.section = idx;
+  G.turnsInSection = 0;
+  updateSectionNodes();
+
+  const sec = SECTIONS[idx];
+  setText(sec.entryText());
+  setChoices(sec.choices());
+  renderStats();
+
+  if (Math.random() < 0.5 && idx < 4) {
+    setTimeout(() => triggerEncounter(), 300);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  TIME & LOSS
+// ═══════════════════════════════════════════════
+function spendTime(mins, reason) {
+  G.time = Math.max(0, G.time - mins);
+  renderStats();
+  if (G.time <= 0) {
+    triggerLoss();
+  }
+}
+
+function gainTime(mins) {
+  G.time = Math.min(90, G.time + mins);
+  renderStats();
+}
+
+// ═══════════════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════════════
+function sneakAction() {
+  G.wit = Math.min(100, G.wit + 8);
+  setText(`You hug the wall like a man who has been avoiding conversations his entire adult life — which is to say, with professional grace. You snag a compact headlamp from the display rack. The tourist looks up once, then back at the stove. He is computing BTU output on his phone.
+
+Headlamp acquired. Wit sharpened.`);
+  setChoices([
+    { text: 'Continue toward the Trout Pond', action: () => moveToSection(1) },
+    { text: 'Stay put a moment longer (let tourist move on)', action: () => waitAction() },
+  ]);
+  renderStats();
+}
+
+function lifeAction() {
+  if (!G.hasLifesavers) {
+    setText('You reach for the Lifesavers, but the roll is gone. You already used those.\n\nYou are alone with your choices.');
+    setChoices(SECTIONS[G.section].choices());
+    return;
+  }
+  G.hasLifesavers = false;
+  spendTime(2);
+  G.wit = Math.min(100, G.wit + 5);
+  setText(`You slide the Wintergreen Lifesavers across the floor toward the stove display. The tourist hears the rattle. He bends down. He is confused and then oddly pleased. "Oh wow, Wintergreen! These were my grandfather's..." He is now somewhere else emotionally.
+
+You are gone.`);
+  renderInventory();
+  setChoices([{ text: 'Proceed to Trout Pond', action: () => moveToSection(1) }]);
+}
+
+function grabMoxie() {
+  G.hasMoxie = true;
+  G.moxieFound = true;
+  setText(`You pick up the Moxie. It's slightly warm. You don't care. It's Moxie. The birch-bark bitterness hits your memory like a childhood summer.
+
+You are not going to drink it yet. This is strategic Moxie. A Moxie held in reserve is a Moxie with power.
+
++15 minutes available whenever you crack it open.`);
+  renderInventory();
+  setChoices([
+    { text: 'Drink the Moxie NOW (+15 min)', action: () => drinkMoxie() },
+    { text: 'Save it and head toward the Boot Deck', action: () => moveToSection(2) },
+    { text: 'Hide in the canoe and assess the situation', action: () => waitInCanoe() },
+  ]);
+}
+
+function drinkMoxie() {
+  if (!G.hasMoxie) return;
+  G.hasMoxie = false;
+  gainTime(15);
+  G.wit = Math.min(100, G.wit + 10);
+  setText(`You crack the Moxie open. The sound echoes through the store like a starting pistol. Nobody reacts — they're all arguing about fleece weights.
+
+The familiar coal-tar bitterness courses through you. Your shoulders drop. Your eyes get clear. Your grandfather drank this. His grandfather drank this. You are a man of Maine and you are going to get these boots and go home.
+
++15 minutes. +10 Dry Wit.`);
+  renderInventory();
+  renderStats();
+  setChoices(SECTIONS[G.section].choices());
+}
+
+function waitInCanoe() {
+  spendTime(8);
+  if (G.gameOver) return;
+  setText(`You fold yourself into the display Old Town canoe behind a rack of PFDs and wait. The Hoboken couple takes four hundred photos with the trout pond. She asks him to "look more outdoorsy." He tries.
+
+Eventually they drift toward the kayaks.
+
+The way is clear. Also your back hurts. -8 minutes.`);
+  setChoices([{ text: 'Head to the Boot Deck', action: () => moveToSection(2) }]);
+}
+
+function ownerWalk() {
+  const roll = Math.random() * 100;
+  if (G.wit > 60 || roll < 40) {
+    G.wit = Math.min(100, G.wit + 12);
+    setText(`You walk through the Trout Pond area with the quiet authority of a man who has never questioned whether he belongs somewhere. The Hoboken couple glances up. You give a single measured nod. They interpret this as "local expert approves of their presence."
+
+They return to their photos. You are already gone.
+
+Dry Wit +12.`);
+    setChoices([{ text: 'Continue to the Boot Deck', action: () => moveToSection(2) }]);
+  } else {
+    spendTime(10);
+    if (G.gameOver) return;
+    setText(`You walk through with authority. Unfortunately the man interprets this as an invitation.
+
+"Hey! Local guy! What's a good hike? Something moderate. But also scenic. And with a view. And not too crowded. And we have a 4-year-old. And a dog. But the dog has anxiety."
+
+You answer three of these. It costs you. -10 minutes.`);
+    setChoices([{ text: 'Extract yourself and head to the Boot Deck', action: () => moveToSection(2) }]);
+  }
+}
+
+function grabMaple() {
+  G.hasMaple = true;
+  G.mapleFound = true;
+  setText(`There it is: a jar of Maine maple syrup in the gift display. Grade A Dark. The good stuff. You slip it into your coat pocket. It's heavy and smells like pancakes and morning and a life not spent talking to tourists.
+
+This could be useful.`);
+  renderInventory();
+  setChoices(SECTIONS[2].choices());
+}
+
+function mapleDistract() {
+  G.hasMaple = false;
+  spendTime(0);
+  G.wit = Math.min(100, G.wit + 15);
+  setText(`You set the jar of maple syrup on the shelf at the end of Todd's aisle and wait. It takes twelve seconds. Todd spots it. "Oh WOW is that LOCAL maple? Babe, BABE, look—" He drifts away from the boots entirely, babe in tow.
+
+Kayla makes eye contact with you. You give her the single nod. She gives you a look of infinite gratitude.
+
+You collect your boots. Size 10.5 Wide. Moc-toe. Classic tan. Ida's going to say nothing because she understands quality.`);
+  G.hasBoots = true;
+  renderInventory();
+  renderStats();
+  setChoices([{ text: 'Head to the Flannel Racks', action: () => moveToSection(3) }]);
+}
+
+function distractKayla() {
+  spendTime(7);
+  if (G.gameOver) return;
+  G.wit = Math.min(100, G.wit + 8);
+  setText(`You position yourself on the far side of the Boot Deck and raise your hand. "Kayla? Do you have the Handsewn Camp Moc in a 13EEE?"
+
+Kayla nods with the hollow eyes of a professional and moves toward the stockroom. Todd follows, since Kayla is his anchor to reality.
+
+You have thirty seconds. You find your boots. You do not try them on. You know they fit. They always fit.`);
+  G.hasBoots = true;
+  renderInventory();
+  renderStats();
+  setChoices([{ text: 'Head to the Flannel Racks — quick now', action: () => moveToSection(3) }]);
+}
+
+function deployWit(location) {
+  const roll = Math.random() * 100;
+  const threshold = location === 'Exit' ? 45 : 55;
+  const success = G.wit >= threshold || roll < G.wit;
+
+  if (success) {
+    G.wit = Math.min(100, G.wit + 10);
+    const quips = {
+      'Boot Deck': `You turn to Todd. You look him square in the eye. You say, very quietly:
+
+"Ayuh."
+
+Todd blinks. Something happens in his brain. The word bypasses his usual processing. He just nods. He steps aside. He will think about this moment for years.
+
+You get your boots.`,
+      'Flannel Racks': `You approach the two women mid-debate. You look at the flannel they're holding. You say, simply and sincerely:
+
+"That'll last you thirty years. My father had one like it."
+
+They both go quiet. They buy the flannel. They feel they have learned something.
+
+You are already at the exit corridor.`,
+      'Exit': `You look the khaki-shorts man in the eye. You say:
+
+"Return policy's simple. If it breaks, they fix it. If you don't like it, bring it back. They've been doing it since 1912. Now if you'll excuse me."
+
+He nods with profound respect for institutional continuity. You walk through the door.`
+    };
+    const afterAction = {
+      'Boot Deck': () => { G.hasBoots = true; renderInventory(); renderStats(); setChoices([{ text: 'Head to the Flannel Racks', action: () => moveToSection(3) }]); },
+      'Flannel Racks': () => moveToSection(4, true),
+      'Exit': () => finalEscape(),
+    };
+    setText(quips[location] || 'Ayuh.');
+    setTimeout(() => afterAction[location] && afterAction[location](), location === 'Exit' ? 100 : 0);
+  } else {
+    spendTime(location === 'Boot Deck' ? 10 : 8);
+    if (G.gameOver) return;
+    G.wit = Math.max(0, G.wit - 5);
+    const fails = {
+      'Boot Deck': `You attempt the Ayuh. But something — nerves, fatigue, the foam sleeping pad still stuck to your face — makes it land wrong. Todd hears it as an invitation.
+
+"Oh, so you ARE local! Perfect. So here's my question about the boots..."
+
+It takes you ten minutes to escape. Todd has opinions about waterproofing.`,
+      'Flannel Racks': `You approach. You say "wicked good." They don't hear the irony. They think you're staff. They have questions about sizing and return policies and whether flannel "reads as ironic on the Upper West Side."
+
+Eight minutes, gone.`,
+      'Exit': `The Ayuh doesn't land. He asks if YOU know about the return policy. You explain it. His wife has follow-up questions. Eight minutes disappear into the Maine night.`,
+    };
+    setText((fails[location] || 'You lose some time.') + `\n\nDry Wit -5.`);
+    renderStats();
+    setChoices(SECTIONS[G.section].choices());
+  }
+}
+
+function grabFlannel() {
+  G.hasFlannel = true;
+  G.flannelFound = true;
+  G.stealth = true;
+  G.wit = Math.min(100, G.wit + 10);
+  setText(`You lift the chamois shirt off the rack. Buffer Green, XL. It fits over your coat like it was made for you — because in some sense, it was. You button it halfway. You look like you live here. You look like you have always been here.
+
+The two women glance at you and immediately decide you are a regional expert.
+
++20% Stealth. Future section moves cost only 3 minutes. Dry Wit +10.`);
+  renderInventory();
+  renderStats();
+  setChoices(SECTIONS[3].choices());
+}
+
+function dropLifesavers() {
+  if (!G.hasLifesavers) {
+    setText(`You reach for the Lifesavers. The pocket is empty. You used those already.\n\nYou are a man alone with his flannel and his choices.`);
+    setChoices(SECTIONS[G.section].choices());
+    return;
+  }
+  G.hasLifesavers = false;
+  spendTime(2);
+  if (G.gameOver) return;
+  G.wit = Math.min(100, G.wit + 8);
+  setText(`You drop the Lifesavers roll on the floor near the flannel rack. The cellophane crinkles with authority. One woman looks down. The other looks down. They are discussing the Lifesavers now.
+
+You slip through the gap like smoke.`);
+  renderInventory();
+  setChoices([{ text: 'Head to the Exit Vestibule', action: () => moveToSection(4) }]);
+}
+
+function waitAction() {
+  spendTime(5);
+  if (G.gameOver) return;
+  setText(`You wait. The tourist goes back to looking at camp stoves. The store hums with the low frequency of capitalism never sleeping.
+
+-5 minutes. The path looks clearer.`);
+  setChoices(SECTIONS[0].choices());
+}
+
+function finalEscape() {
+  if (!G.hasBoots) {
+    setText(`You push toward the door — and then stop. You didn't get the boots.\n\nIda's out there. Without boots, this whole thing was for nothing. You turn around.`);
+    setChoices([{ text: 'Go back for the boots (Boot Deck)', action: () => goToSection(2) }]);
+    return;
+  }
+  triggerWin();
+}
+
+function finalMaple() {
+  G.hasMaple = false;
+  const saved = 5;
+  gainTime(0);
+  G.wit = Math.min(100, G.wit + 10);
+  setText(`You set the maple syrup on the bench near the door with the calm of a man leaving a peace offering. The couple from New Jersey sees it immediately. The woman photographs it. The man picks it up to read the label.
+
+"Is this REAL Maine maple? Like, from an actual Maine maple?"
+
+The door greeter is now explaining maple trees.
+
+You are through the door.`);
+  renderInventory();
+  setTimeout(() => triggerWin(), 100);
+}
+
+// ═══════════════════════════════════════════════
+//  ENCOUNTER SYSTEM
+// ═══════════════════════════════════════════════
+function triggerEncounter() {
+  if (G.gameOver || G.section === 4) return;
+  const enc = ENCOUNTERS[Math.floor(Math.random() * ENCOUNTERS.length)];
+  const popup = document.getElementById('encounter-popup');
+  document.getElementById('encounter-text').textContent = enc.text;
+
+  const choicesDiv = document.getElementById('encounter-choices');
+  choicesDiv.innerHTML = '';
+
+  enc.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn encounter-btn';
+    btn.textContent = opt.text + '  [' + opt.desc + ']';
+    btn.onclick = () => resolveEncounter(opt, popup);
+    choicesDiv.appendChild(btn);
+  });
+
+  popup.style.display = 'block';
+  G.encounterActive = true;
+}
+
+function resolveEncounter(opt, popup) {
+  popup.style.display = 'none';
+  G.encounterActive = false;
+
+  let cost = opt.timeCost;
+
+  if (opt.isWitTest) {
+    if (G.wit >= opt.witThreshold) {
+      cost = 0;
+      G.wit = Math.min(100, G.wit + opt.witGain);
+      setText(`AYUH.\n\nThey don't know what to do with that. You're gone before their brain finishes parsing.
+
+Dry Wit check: PASSED. Time cost: 0 minutes.`);
+    } else {
+      cost = 8;
+      G.wit = Math.max(0, G.wit - 5);
+      setText(`The Ayuh doesn't land. Your Dry Wit is still developing. You lose some time before extracting yourself.
+
+Dry Wit check: FAILED. -8 minutes, -5 Wit.`);
+    }
+  } else {
+    G.wit = Math.min(100, Math.max(0, G.wit + opt.witGain));
+    let resultText = cost <= 5
+      ? `Clean escape. -${cost} minutes.`
+      : cost <= 10
+      ? `You make it out. It takes a while. -${cost} minutes.`
+      : `You get drawn in deeper than expected. -${cost} minutes. Ida is going to hear about this.`;
+    setText(resultText);
+  }
+
+  spendTime(cost);
+  if (!G.gameOver) {
+    renderStats();
+    renderInventory();
+    setChoices(SECTIONS[G.section].choices());
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  WIN / LOSE
+// ═══════════════════════════════════════════════
+function triggerWin() {
+  G.won = true;
+  G.gameOver = true;
+
+  const timeLeft = G.time;
+  const witScore = G.wit;
+  const rating = timeLeft > 40 ? 'LEGENDARY MAINER'
+                : timeLeft > 25 ? 'SOLID WOODSMAN'
+                : timeLeft > 10 ? 'MADE IT BY A HAIR'
+                : 'EXTREMELY CLOSE CALL';
+
+  const endScreen = document.getElementById('end-screen');
+  endScreen.style.color = 'var(--green)';
+  document.getElementById('end-title').style.color = 'var(--green)';
+  document.getElementById('end-title').textContent =
+`★ YOU GOT OUT ★`;
+
+  document.getElementById('end-body').textContent =
+`The cold Maine air hits you like a gift.
+
+The Brat is right there — engine idling, exhaust curling up into the dark pines. The dash lights glow amber inside. Ida is in the passenger seat. She did not bring you coffee. She knew you'd take too long.
+
+You open the door. You slide in. You set the boots on the back seat with a satisfying thunk.
+
+Ida looks at you. She looks at the boots. She looks back at the road.
+
+"Took you long enough."
+
+"Ayuh," you say.
+
+She puts it in gear. The Brat rattles down Route 1 toward the boat launch. The sky is beginning, very faintly, to consider the possibility of dawn.
+
+You are going to catch a fish today.
+You can feel it.
+
+────────────────────────────────────
+TIME REMAINING: ${timeLeft} minutes
+DRY WIT FINAL SCORE: ${witScore}/100
+RATING: ${rating}
+────────────────────────────────────`;
+
+  document.getElementById('end-score').textContent =
+    G.hasBoots && G.hasFlannel ? '[ ACHIEVED: Full Maine Loadout ]'
+    : G.hasBoots && G.hasMoxie ? '[ ACHIEVED: Fueled by Moxie ]'
+    : '[ Boots in hand. Mission complete. ]';
+
+  endScreen.classList.add('show');
+}
+
+function triggerLoss() {
+  G.gameOver = true;
+
+  const endScreen = document.getElementById('end-screen');
+  endScreen.style.color = 'var(--red)';
+
+  document.getElementById('end-title').style.color = 'var(--red)';
+  document.getElementById('end-title').textContent =
+`✖ GAME OVER ✖`;
+
+  document.getElementById('end-body').textContent =
+`The sky goes pale over Casco Bay.
+
+You hear Ida put the Brat into gear from somewhere on the other side of the plate glass. She waits — approximately three seconds, which for Ida is an eternity of mercy — and then she pulls out of the lot.
+
+She will be at the boat launch. Alone. With the rods. She will catch three bass by seven AM. She will not tell you about them.
+
+Inside L.L. Bean, a tourist from Greenwich asks a floor associate to explain the heritage of the Bean Boot to him for the fifth time.
+
+You are still in the Flannel Racks, holding a chamois shirt, wondering where your life went.
+
+Morning fishing: MISSED.
+Ida: FURIOUS (quietly, which is worse).
+Boots: STILL NOT GOTTEN.
+
+────────────────────────────────────
+"He came in for boots. He never came back.
+ We assume he's still in there somewhere."
+          — Ida, 2025
+────────────────────────────────────`;
+
+  document.getElementById('end-score').textContent =
+    '[ The Flatlanders have won. This time. ]';
+
+  endScreen.classList.add('show');
+}
+
+// ═══════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════
+initGame();
+</script>
+</body>
+</html>
