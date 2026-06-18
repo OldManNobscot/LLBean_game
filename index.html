@@ -738,26 +738,54 @@
 
 <script>
 // ═══════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+// ── Random tourist profiles ──
+const TOURISTS = [
+  { origin: 'Greenwich, CT', name: 'Brad', item: 'a NorthFace vest over a Nantucket fleece', quirk: 'keeps asking if things are "locally sourced"' },
+  { origin: 'Hoboken, NJ',   name: 'Kyle', item: 'fresh Bean Boots he bought ten minutes ago and is already wearing', quirk: 'describes everything as "very curated"' },
+  { origin: 'Scarsdale, NY', name: 'Derek', item: 'a $600 sleeping bag still in the box', quirk: 'has strong opinions about thread counts' },
+  { origin: 'Darien, CT',    name: 'Todd', item: 'a Patagonia vest over a dress shirt', quirk: 'cannot make decisions without consulting his phone' },
+  { origin: 'Montclair, NJ', name: 'Brendan', item: 'a monogrammed L.L. Bean tote overflowing with merchandise', quirk: 'introduces himself to store employees by first name' },
+  { origin: 'Westport, CT',  name: 'Chad', item: 'hiking poles he is using indoors', quirk: 'uses the word "authentic" every forty seconds' },
+  { origin: 'Short Hills, NJ', name: 'Trent', item: 'three different fleece weights for "layering options"', quirk: 'is audibly calculating cost-per-use on every item' },
+];
+
+// ═══════════════════════════════════════════════
 //  GAME STATE
 // ═══════════════════════════════════════════════
 let G = {};
 
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
 function initGame() {
+  // Randomize which section holds Moxie (0, 1, or 3) and Maple (2 or 3)
+  const moxieSection = pick([0, 1, 3]);
+  const mapleSection = pick([2, 3]);
+
   G = {
     time: 60,
     wit: 40,
-    stealth: false,       // flannel shirt bonus
+    stealth: false,
     hasMoxie: false,
     hasMaple: false,
     hasLifesavers: true,
     hasKnife: true,
     hasFlannel: false,
     hasBoots: false,
-    section: 0,           // 0-4
+    section: 0,
     sectionsVisited: new Set(),
     gameOver: false,
     won: false,
-    bootsFound: false,
     moxieFound: false,
     mapleFound: false,
     flannelFound: false,
@@ -766,6 +794,15 @@ function initGame() {
     panic: 0,
     ayuhCharges: 4,
     mooseHiding: false,
+    moxieSection,
+    mapleSection,
+    // Pick random flavor variant for each section at game start
+    sectionFlavor: [pick([0,1,2]), pick([0,1,2]), pick([0,1,2]), pick([0,1,2]), pick([0,1,2])],
+    // Shuffle encounter pool for this run
+    shuffledEncounters: shuffle([...ENCOUNTERS]),
+    encounterIndex: 0,
+    // Random tourist details
+    tourist: pick(TOURISTS),
   };
 
   document.getElementById('end-screen').classList.remove('show');
@@ -778,82 +815,164 @@ function initGame() {
 // ═══════════════════════════════════════════════
 //  SECTIONS
 // ═══════════════════════════════════════════════
+
+// Section flavor variant pools — picked once per run via G.sectionFlavor
+const SECTION_FLAVORS = [
+  // 0 — Camping Gear (3 variants)
+  [
+    (t) => `You claw your way out of a Mountainsmith base-camp display tent. A foam sleeping pad sticker is stuck to your cheek. The Camping Gear section stretches out before you — a cathedral of Gore-Tex in the dark. Headlamps hang like sleeping bats. The faint smell of DEET and ambition hangs in the air.
+
+Ida is outside in the Brat. The engine's been idling since midnight. You can almost hear her tapping the steering wheel.
+
+You peek around a tent pole. A man in a Harvard Lampoon sweatshirt is squinting at a $340 camp stove like it owes him money.`,
+    (t) => `You unzip the display tent from the inside like a man being born again, into a store, at 2 AM, wearing yesterday's clothes. A price tag from a sleeping bag liner is stuck to your ear.
+
+The Camping Gear section hums with the quiet desperation of fluorescent emergency lighting. Somewhere a Bluetooth speaker is softly playing Mumford & Sons. Nobody chose this.
+
+${t.name} from ${t.origin} is standing nearby, holding ${t.item}. He ${t.quirk}. You have met a thousand of him.`,
+    (t) => `The tent collapses as you exit it sideways, taking a display lantern with you. It bounces once and goes dark. Nobody notices. The Camping Gear section is its own ecosystem at 2 AM — self-contained, odorous, humming with the sound of people who have never camped buying camping equipment.
+
+A man near the stove display is comparing two camp chairs on his phone. His wife is asleep in one of them. She has the right idea.
+
+Ida is in the parking lot. The Brat's exhaust mixes with the pine-scented air freshener pumped through the store vents. Time is short.`,
+  ],
+  // 1 — Trout Pond (3 variants)
+  [
+    (t) => `You push past a rack of quick-dry fishing vests and nearly walk into L.L. Bean's famous indoor Trout Pond. The water is perfectly still. A taxidermied brook trout eyes you with quiet judgment. There's a display canoe you could hide behind.
+
+To your left: the Boot Section. To your right: a couple from Hoboken is photographing themselves with the pond. She has a ring light. He is wearing Crocs at 2 AM in Maine.`,
+    (t) => `The Trout Pond glows a soft green in the emergency lighting. Its stillness is complete. A taxidermied landlocked salmon on the far wall stares at you with the serene indifference of something that has already solved all its problems.
+
+${t.name} from ${t.origin} is crouched at the pond's edge, photographing his own reflection. He ${t.quirk}. He does not notice you. The Boot Section is to your left.`,
+    (t) => `You come around the corner and stop. The Trout Pond. You've fished actual ponds less peaceful than this one. The ambient sound system is playing something vaguely resembling a brook. It is almost calming.
+
+Almost.
+
+A family of four from New York has set up what appears to be a light picnic on the bench beside the pond. They have trail mix. The children are awake. It is 2:17 AM. Everyone is making choices tonight.`,
+  ],
+  // 2 — Boot Section (3 variants)
+  [
+    (t) => `You're in the Boot Section. The smell hits you first — leather and rubber and a hundred years of Yankee pragmatism. Rows of Bean Boots gleam under the emergency lighting like small, sensible gods.
+
+Your size is right there on the third shelf. 10.5 Wide. Just like you called in last Tuesday.
+
+Between you and those boots: ${t.name} from ${t.origin}, wearing ${t.item}. He is asking a floor associate named Kayla if the moc-toe comes in "slate blue." Kayla looks like she has left her body.`,
+    (t) => `The Boot Section. You almost cry a little. Not from emotion — from the smell. Leather, rubber, neatsfoot oil. The honest smell of footwear built to last thirty years in conditions that would end a lesser boot.
+
+Your boots are on the third shelf. Right there.
+
+${t.name} from ${t.origin} is between you and them. He ${t.quirk}. He is holding four boot boxes and appears to be in a genuine philosophical crisis about waterproofing.`,
+    (t) => `You come up the stairs into the Boot Section and breathe it in. Six generations of Maine craftsmanship, on shelves, under emergency lighting, at 2:19 AM. Your boots are here. You can see them.
+
+A man in a performance polo is asking whether the Bean Boot "reads as ironic or sincere in a Brooklyn context." The associate he's asking — her name tag says KAYLA — has the thousand-yard stare of someone who clocked in at 11 PM and is running on gas station coffee.
+
+This is going to require a plan.`,
+  ],
+  // 3 — Flannel Racks (3 variants)
+  [
+    (t) => `The Flannel Racks section — a warm, plaid wilderness of 100% cotton in every combination of red, green, and the deep forest dignity of a man who heats with wood.${G.hasFlannel ? '\n\nYour chamois shirt is doing its work. You move quieter. You belong here.' : '\n\nA Buffer Green chamois shirt in your exact size hangs at eye level. It is calling to you by name.'}
+
+Two women from the Upper West Side are debating "rustic" versus "cottagecore." One is filming. The other is holding seventeen items and seems to be dissociating.`,
+    (t) => `Plaid. Plaid everywhere. Red plaid, green plaid, the dignified navy-and-cream of a man who has his own woodpile. The Flannel Racks are a forest of right decisions.${G.hasFlannel ? '\n\nWith the chamois shirt on, you are indistinguishable from the merchandise. This is a compliment.' : '\n\nThere is a chamois shirt in your size. Buffer Green. It is $89. You know it would last you twenty years.'}
+
+${t.name} from ${t.origin} is somewhere nearby with ${t.item}. You can hear him. You do not look directly at him.`,
+    (t) => `You move through the Flannel Racks like a man who knows what flannel is for. Around you, the merchandise hangs in patient rows. Cotton. Real cotton. None of this moisture-wicking technical fabric nonsense.${G.hasFlannel ? '\n\nThe chamois shirt has made you invisible. You are part of the display. You are Maine.' : '\n\nA chamois shirt. Buffer Green, XL. Right there. You could put it on right now.'}
+
+A man is telling his wife that he needs "at least three flannels" because "I'm really committing to the lifestyle." His wife is nodding with the expression of someone who has heard this before.`,
+  ],
+  // 4 — Exit Vestibule (3 variants)
+  [
+    (t) => `You can see it. The famous L.L. Bean Boot statue outside. The parking lot. Ida's Brat, engine idling, exhaust fog drifting in the cold Maine air.
+
+The Exit Vestibule. Twenty feet of revolving door glory stand between you and freedom.
+
+A man in khaki shorts — despite it being 48 degrees — is asking the door greeter about the return policy. His wife is taking notes on her phone. They are from New Jersey. This is evident without asking.`,
+    (t) => `The door. You can see the door. Through the glass you can see the parking lot, the Boot statue, and the faint shape of the Brat with its running lights on. Ida is in there. She has been in there for two hours. She will say nothing about this. That is worse.
+
+${t.name} from ${t.origin} is blocking the vestibule with ${t.item}. He is explaining something to the door greeter. The door greeter has heard everything.`,
+    (t) => `Twenty feet. That's all that stands between you and the parking lot, the Brat, Ida, and a reasonable chance at morning fishing. Twenty feet of exit vestibule, one revolving door, and whatever ${t.name} from ${t.origin} is currently discussing with the overnight staff.
+
+He ${t.quirk}. At 2 AM. In a vestibule. In Maine.
+
+The Brat's exhaust drifts past the window like a signal fire.`,
+  ],
+];
+
 const SECTIONS = [
   {
     id: 0,
     name: 'CAMPING GEAR',
-    entryText: () => `You claw your way out of a Mountainsmith base-camp display tent. A foam sleeping pad sticker is stuck to your cheek. The Camping Gear section stretches out before you — a cathedral of Gore-Tex in the dark. Headlamps hang like sleeping bats. The faint smell of DEET and ambition hangs in the air.
-
-Ida is outside in the Brat. The engine's been idling since midnight. You can almost hear her tapping the steering wheel.
-
-Objective: get to the Boot Section. Pick up your Bean Boots. Get out. Simple.
-
-You peek around a tent pole. One tourist in a Harvard Lampoon sweatshirt is squinting at a $340 camp stove like it owes him money.`,
+    entryText: () => {
+      const base = SECTION_FLAVORS[0][G.sectionFlavor[0]](G.tourist);
+      const moxieHint = G.moxieSection === 0 && !G.moxieFound ? '\n\nA lone can of Moxie sits on a display shelf nearby. Someone left it behind.' : '';
+      return base + moxieHint;
+    },
     choices: () => [
       { text: 'Hug the wall toward the Trout Pond display', action: () => moveToSection(1) },
       { text: 'Grab a headlamp from the rack (sneak past tourist)', action: () => sneakAction() },
-      G.hasLifesavers && !G.wit > 80 ? null : { text: 'Offer Lifesavers to distract the tourist', action: () => lifeAction() },
+      G.hasLifesavers ? { text: 'Offer Lifesavers to distract the tourist', action: () => lifeAction() } : null,
+      G.moxieSection === 0 && !G.moxieFound ? { text: 'Grab that Moxie off the shelf', action: () => grabMoxie() } : null,
+      G.hasMoxie ? { text: 'Drink the Moxie now (-Panic, +Time, +Wit)', action: () => drinkMoxie() } : null,
     ].filter(Boolean),
   },
   {
     id: 1,
     name: 'TROUT POND',
-    entryText: () => `You push past a rack of quick-dry fishing vests and nearly walk into L.L. Bean's famous indoor Trout Pond. The water is perfectly still. A taxidermied brook trout eyes you with quiet judgment. There's a display canoe you could hide behind.
-
-To your left: the Boot Section stairs. To your right: a couple from Hoboken is photographing themselves with the pond. She has a ring light. He is wearing Crocs at 2 AM in Maine.${G.hasMoxie ? '' : '\n\nYou notice a single can of Moxie sitting on a bench near the pond. Someone left it behind. Possibly as an offering.'}${G.hasFlannel || G.flannelFound ? '' : ''}`,
+    entryText: () => {
+      const base = SECTION_FLAVORS[1][G.sectionFlavor[1]](G.tourist);
+      const moxieHint = G.moxieSection === 1 && !G.moxieFound ? '\n\nA can of Moxie sits on the bench by the pond. An offering from a prior visitor.' : '';
+      return base + moxieHint;
+    },
     choices: () => [
-      { text: 'Creep past the Hoboken couple toward the Boot Section', action: () => moveToSection(2) },
-      !G.moxieFound ? { text: 'Grab that Moxie off the bench', action: () => grabMoxie() } : null,
+      { text: 'Creep past toward the Boot Section', action: () => moveToSection(2) },
+      G.moxieSection === 1 && !G.moxieFound ? { text: 'Grab that Moxie off the bench', action: () => grabMoxie() } : null,
       G.hasMoxie ? { text: 'Drink the Moxie now (-Panic, +Time, +Wit)', action: () => drinkMoxie() } : null,
       { text: 'Stand perfectly still beside the taxidermy moose', action: () => standByMoose() },
       { text: 'Hide in the display canoe and wait for them to leave', action: () => waitInCanoe() },
-      { text: 'Mutter "Good evening" and just walk through like you own the place', action: () => ownerWalk() },
+      { text: 'Mutter "Good evening" and walk through like you own the place', action: () => ownerWalk() },
     ].filter(Boolean),
   },
   {
     id: 2,
-    name: 'BOOT DECK',
-    entryText: () => `You're on the Boot Section. The smell hits you first — leather and rubber and a hundred years of Yankee pragmatism. Rows of Bean Boots gleam under the emergency lighting like small, sensible gods.
-
-Your size is right there on the third shelf. 10.5 Wide. Just like you called in last Tuesday.
-
-Unfortunately: between you and those boots stands a man named Todd from Darien, Connecticut. Todd is wearing a Patagonia vest over a dress shirt at 2 AM. Todd is holding three boxes of boots and has not yet decided. Todd is asking a floor associate named Kayla if the moc-toe comes in "slate blue."
-
-Kayla looks like she has left her body.`,
+    name: 'BOOT SECTION',
+    entryText: () => {
+      const base = SECTION_FLAVORS[2][G.sectionFlavor[2]](G.tourist);
+      const mapleHint = G.mapleSection === 2 && !G.mapleFound ? '\n\nA jar of Stonewall Kitchen maple syrup sits in the gift display nearby. Potentially useful.' : '';
+      return base + mapleHint;
+    },
     choices: () => [
-      G.hasMaple ? { text: 'Leave the Maple Syrup as a trail distraction — Todd follows the drizzle', action: () => mapleDistract() } : null,
-      { text: 'Deploy a withering "Ayuh" and shoulder past Todd', action: () => deployWit('Boot Section') },
+      G.hasMaple ? { text: 'Leave the Maple Syrup as a trail distraction', action: () => mapleDistract() } : null,
+      { text: `Deploy a withering "Ayuh" and shoulder past`, action: () => deployWit('Boot Section') },
       { text: 'Ask Kayla a complicated question in the opposite direction', action: () => distractKayla() },
-      !G.mapleFound ? { text: 'Spot a jar of Stonewall Kitchen maple syrup in the gift display', action: () => grabMaple() } : null,
+      G.mapleSection === 2 && !G.mapleFound ? { text: 'Grab that jar of maple syrup from the gift display', action: () => grabMaple() } : null,
       G.hasBoots ? { text: '[Boots in hand] — Head to Flannel Racks', action: () => moveToSection(3) } : null,
     ].filter(Boolean),
   },
   {
     id: 3,
     name: 'FLANNEL RACKS',
-    entryText: () => `The Flannel Racks section is a warm, plaid wilderness of 100% cotton in every combination of red, green, and the deep forest dignity of a man who heats with wood.
-
-You've got your boots. Now you just have to reach the Exit Vestibule.${G.hasFlannel ? '\n\nYour flannel shirt is doing its work — you move quieter, blend into the merchandise.' : '\n\nThere\'s a gorgeous chamois shirt in your size hanging right there. Buffer Green, XL. It\'s calling to you.'}
-
-Two women from the Upper West Side are having a full philosophical debate about the merits of "rustic" versus "cottagecore." One is filming for Instagram. The other is holding seventeen items and seems to be dissociating.`,
+    entryText: () => {
+      const base = SECTION_FLAVORS[3][G.sectionFlavor[3]](G.tourist);
+      const moxieHint = G.moxieSection === 3 && !G.moxieFound ? '\n\nA warm can of Moxie sits on a low shelf between two flannel shirts, like it belongs there.' : '';
+      const mapleHint = G.mapleSection === 3 && !G.mapleFound ? '\n\nA jar of Maine maple syrup is tucked into the gift end-cap. Somebody\'s forgotten souvenir.' : '';
+      return base + moxieHint + mapleHint;
+    },
     choices: () => [
       !G.flannelFound ? { text: 'Grab that chamois shirt — put it on for stealth', action: () => grabFlannel() } : null,
       G.hasFlannel ? { text: '[Stealth active] Glide past like a native — head to Exit', action: () => moveToSection(4, true) } : null,
       { text: 'Navigate through the racks toward the Exit Vestibule', action: () => moveToSection(4) },
       G.hasLifesavers ? { text: 'Drop Lifesavers on the floor as a crinkly distraction', action: () => dropLifesavers() } : null,
       { text: 'Nod gravely and say "Wicked good choice" — they\'re confused, you\'re gone', action: () => deployWit('Flannel Racks') },
+      G.moxieSection === 3 && !G.moxieFound ? { text: 'Grab that Moxie off the shelf', action: () => grabMoxie() } : null,
+      G.hasMoxie ? { text: 'Drink the Moxie now (-Panic, +Time, +Wit)', action: () => drinkMoxie() } : null,
+      G.mapleSection === 3 && !G.mapleFound ? { text: 'Grab the maple syrup from the end-cap', action: () => grabMaple() } : null,
+      G.hasMaple ? { text: 'Leave the Maple Syrup as a trail distraction', action: () => mapleDistract() } : null,
     ].filter(Boolean),
   },
   {
     id: 4,
     name: 'EXIT VESTIBULE',
-    entryText: () => `You can see it. The famous L.L. Bean Boot statue outside. The parking lot. Ida's Brat, engine idling, exhaust fog drifting in the cold June air.
-
-The Exit Vestibule. Twenty feet of revolving door glory stand between you and freedom.
-
-But of course — there's one last obstacle. A man in khaki shorts — despite it being 48 degrees — is asking the door greeter about the store's return policy. His wife is taking notes on her phone. They are from New Jersey. This is evident without asking.
-
-You can hear the Brat's engine. You can almost smell the coffee Ida definitely did NOT bring you.`,
+    entryText: () => SECTION_FLAVORS[4][G.sectionFlavor[4]](G.tourist),
     choices: () => [
       G.hasBoots ? { text: 'Make your move — stride through with purpose', action: () => finalEscape() } : { text: 'You need boots first! Head back to the Boot Section.', action: () => goToSection(2) },
       { text: 'Deploy maximum Dry Wit: "Store closes at never. Good luck." Exit.', action: () => deployWit('Exit') },
@@ -928,6 +1047,132 @@ They are blocking the entire corridor. Completely. On both sides.`,
       { text: 'Find alternate route through the camping kitchen display', timeCost: 8, witGain: 0, desc: '-8 min' },
     ],
   },
+  // ── Additional standard encounters ──
+  {
+    text: `A woman is methodically removing every item from a display kayak and placing them on the floor to "see what storage capacity really looks like in practice."
+
+She has created a ten-foot exclusion zone around herself. You need to cross it.`,
+    options: [
+      { text: 'Step over the gear calmly. Make no comment.', timeCost: 3, witGain: 8, desc: '-3 min' },
+      { text: 'Help her put one item back — then disappear while she\'s grateful', timeCost: 5, witGain: 12, desc: '-5 min' },
+      { text: 'She asks your opinion on dry bag sizing', timeCost: 13, witGain: -5, desc: '-13 min 🛶' },
+    ],
+  },
+  {
+    text: `A man is on speakerphone with someone named "Gunnar" debating whether L.L. Bean gear is "ironic prep" or "sincere prep."
+
+He is walking slowly. In your exact direction. At your exact pace. You have been matched.`,
+    options: [
+      { text: 'Accelerate. Leave him behind. Say nothing.', timeCost: 2, witGain: 5, desc: '-2 min' },
+      { text: 'Veer into a side aisle. Let him pass.', timeCost: 4, witGain: 3, desc: '-4 min' },
+      { text: 'He notices you. "Hey, you look local — what do YOU think?"', timeCost: 11, witGain: -5, desc: '-11 min 📞' },
+    ],
+  },
+  {
+    text: `Someone has set up a tripod in the middle of the aisle to photograph a display of camp cookware.
+
+The shot requires absolute stillness in a ten-foot radius. She is waiting. You are in frame.`,
+    options: [
+      { text: 'Walk through the shot without breaking stride.', timeCost: 0, witGain: 15, desc: 'Legendary. 0 min.', isWitTest: true, witThreshold: 45 },
+      { text: 'Wait patiently for the shot. Cost: your time.', timeCost: 7, witGain: 0, desc: '-7 min' },
+      { text: 'Go around through the sleeping bag display', timeCost: 5, witGain: 3, desc: '-5 min' },
+    ],
+  },
+  {
+    text: `A child — maybe seven — is sitting cross-legged on the floor blocking an aisle, reading the entire hang tag on a $280 jacket, one word at a time.
+
+His parents are nowhere visible. He looks up at you.
+
+"What's Gore-Tex?"`,
+    options: [
+      { text: '"Keeps you dry." Step over him. Keep walking.', timeCost: 2, witGain: 10, desc: '-2 min' },
+      { text: 'Give the full explanation. He has follow-up questions.', timeCost: 10, witGain: -3, desc: '-10 min 🧒' },
+      { text: 'Point him toward the camping section and walk away', timeCost: 3, witGain: 5, desc: '-3 min' },
+    ],
+  },
+  {
+    text: `You find a shopping cart blocking a narrow passage. It is full of merchandise — at least $1,400 worth by your estimate — but there is no human attached to it.
+
+Someone has abandoned this cart and will be back. Or won't. Either way, it's in your way.`,
+    options: [
+      { text: 'Move it two feet. It\'s a cart. You\'re allowed.', timeCost: 1, witGain: 5, desc: '-1 min' },
+      { text: 'Squeeze past without touching it', timeCost: 4, witGain: 3, desc: '-4 min (tight fit)' },
+      { text: 'Owner returns as you move it. Lengthy apology exchange.', timeCost: 9, witGain: -3, desc: '-9 min 🛒' },
+    ],
+  },
+  {
+    text: `An older gentleman from what you guess is Westchester — madras shirt, reading glasses on a Croakie — stops you with the confidence of a man who has never doubted himself.
+
+"Young man. Where are the wool socks? The good ones. Not the blends."`,
+    options: [
+      { text: '"Third rack past the boots." You know this store.', timeCost: 2, witGain: 8, desc: '-2 min (you helped a good man)' },
+      { text: '"Sorry, don\'t work here." Move on.', timeCost: 3, witGain: 3, desc: '-3 min' },
+      { text: 'Walk him over. He also wants boot advice.', timeCost: 12, witGain: -2, desc: '-12 min 🧦' },
+    ],
+  },
+  {
+    text: `A couple is having a quiet but intense argument about a $450 tent. One of them wants it. The other is calculating whether they "even go camping enough to justify it."
+
+They are in the exact center of the aisle. The argument has been going on for a while. You can tell.`,
+    options: [
+      { text: 'Slip past during a pause in the argument.', timeCost: 3, witGain: 5, desc: '-3 min' },
+      { text: 'Say "Get the tent" firmly and keep walking.', timeCost: 1, witGain: 15, desc: '-1 min', isWitTest: true, witThreshold: 40 },
+      { text: 'They ask your opinion. You are now a mediator.', timeCost: 14, witGain: -5, desc: '-14 min ⛺' },
+    ],
+  },
+  {
+    text: `A man is trying on every size of the same boot, methodically, leaving the tissue paper on the floor each time. The floor associate, Marcus, looks like he has made peace with his situation.
+
+You need to get through to the next aisle. Marcus is in your way. He gives you a look.`,
+    options: [
+      { text: 'Give Marcus the nod. He parts like the sea.', timeCost: 2, witGain: 10, desc: '-2 min (solidarity)' },
+      { text: 'Go around through the boot care display', timeCost: 5, witGain: 3, desc: '-5 min' },
+      { text: 'Man asks your opinion on half-sizing. Marcus grateful for backup.', timeCost: 10, witGain: 5, desc: '-10 min, +Wit' },
+    ],
+  },
+  {
+    text: `Someone has knocked over an entire peg rack of carabiners. Individually foil-wrapped carabiners, all rolling in every direction across a tile floor, at 2 AM, in a largely silent store.
+
+The sound is extraordinary. Everyone looks. Including you.`,
+    options: [
+      { text: 'Walk past. You did not do this. It is not your problem.', timeCost: 2, witGain: 5, desc: '-2 min' },
+      { text: 'Help pick up three carabiners. Goodwill purchase. Leave.', timeCost: 5, witGain: 12, desc: '-5 min' },
+      { text: 'Slip on a carabiner. Graceful recovery, but it cost you.', timeCost: 8, witGain: -5, desc: '-8 min 🪝' },
+    ],
+  },
+  {
+    text: `A man is giving his wife a comprehensive review of every sleeping bag in the aisle, reading aloud from his phone while she stares into the middle distance. He has been doing this for a while. She left this conversation twenty minutes ago, mentally.
+
+He turns to you. "Do you know what EN 13537 temperature ratings actually mean?"`,
+    options: [
+      { text: '"Lower number, colder you can sleep. Goodnight."', timeCost: 2, witGain: 8, desc: '-2 min' },
+      { text: 'Shrug. Gesture vaguely. Walk away.', timeCost: 3, witGain: 3, desc: '-3 min' },
+      { text: 'You actually know. You explain. He has spreadsheets.', timeCost: 15, witGain: 3, desc: '-15 min 🛌' },
+    ],
+  },
+  {
+    text: `A woman with a large tote bag is photographing price tags and sending them somewhere — her husband, presumably — with audible texting sounds.
+
+She steps backward directly into your path without looking.`,
+    options: [
+      { text: '"Excuse me." Side-step. Continue.', timeCost: 2, witGain: 5, desc: '-2 min' },
+      { text: 'Stop short. Let her finish. Wait.', timeCost: 6, witGain: 0, desc: '-6 min' },
+      { text: 'She turns around startled, drops the phone. Now you\'re involved.', timeCost: 9, witGain: -3, desc: '-9 min 📲' },
+    ],
+  },
+  {
+    text: `You round a corner and encounter a man sitting IN a display Adirondack chair, fully reclined, eyes closed. He is either asleep or meditating. A La Croix is balanced on his knee.
+
+He is directly between you and where you need to go. He opens one eye.
+
+"This chair is incredible. Are you buying one?"`,
+    options: [
+      { text: '"No." Keep moving.', timeCost: 1, witGain: 8, desc: '-1 min' },
+      { text: 'Pause, look at the chair, nod once in genuine agreement. Leave.', timeCost: 3, witGain: 10, desc: '-3 min (honest)' },
+      { text: 'He wants to tell you about his back problems.', timeCost: 12, witGain: -3, desc: '-12 min 🪑' },
+    ],
+  },
+
   // ── Mispronunciation encounters (raise Panic) ──
   {
     text: `A man in a Patagonia quarter-zip stops you with an open maps app.
@@ -1499,7 +1744,12 @@ You are through the door.`);
 // ═══════════════════════════════════════════════
 function triggerEncounter() {
   if (G.gameOver || G.section === 4) return;
-  const enc = ENCOUNTERS[Math.floor(Math.random() * ENCOUNTERS.length)];
+  // Draw from shuffled pool in order — cycle if exhausted
+  if (G.encounterIndex >= G.shuffledEncounters.length) {
+    G.shuffledEncounters = shuffle([...ENCOUNTERS]);
+    G.encounterIndex = 0;
+  }
+  const enc = G.shuffledEncounters[G.encounterIndex++];
   const popup = document.getElementById('encounter-popup');
   document.getElementById('encounter-text').textContent = enc.text;
 
