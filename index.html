@@ -479,11 +479,13 @@
     inset: 0;
     background: #000;
     z-index: 600;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 30px 20px;
+    justify-content: flex-start;
+    padding: 24px 16px 40px;
     text-align: left;
   }
 
@@ -493,8 +495,12 @@
     max-width: 640px;
     width: 100%;
     border: 2px solid var(--green);
-    padding: 32px 36px;
+    padding: 28px 24px;
     box-shadow: 0 0 30px var(--green-dim), inset 0 0 20px rgba(57,255,20,0.03);
+  }
+
+  @media (min-height: 800px) {
+    #intro-screen { justify-content: center; }
   }
 
   #intro-inner h2 {
