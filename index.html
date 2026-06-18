@@ -188,6 +188,45 @@
     transition: width 0.5s;
   }
 
+  /* Panic bar */
+  #panic-bar-outer {
+    width: 90px;
+    height: 12px;
+    border: 1px solid var(--red);
+    background: #000;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #panic-bar-inner {
+    height: 100%;
+    background: var(--red);
+    transition: width 0.4s;
+    box-shadow: 0 0 6px var(--red);
+  }
+
+  /* Ayuh charges */
+  #ayuh-charges {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+  }
+
+  .ayuh-pip {
+    width: 10px;
+    height: 14px;
+    border: 1px solid var(--green);
+    background: var(--green);
+    box-shadow: 0 0 4px var(--green);
+    transition: all 0.2s;
+  }
+
+  .ayuh-pip.empty {
+    background: transparent;
+    border-color: var(--green-dim);
+    box-shadow: none;
+  }
+
   /* ===== SECTION INDICATOR ===== */
   #section-bar {
     border: 2px solid var(--green);
@@ -578,6 +617,20 @@
       <span class="stat-value" id="wit-display">40</span>
     </div>
     <div class="stat-block">
+      <span class="stat-label">PANIC:</span>
+      <div id="panic-bar-outer"><div id="panic-bar-inner" style="width:0%"></div></div>
+      <span class="stat-value" id="panic-display" style="color:var(--green-dim)">0</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-label">AYUH:</span>
+      <div id="ayuh-charges">
+        <div class="ayuh-pip" id="ayuh-0"></div>
+        <div class="ayuh-pip" id="ayuh-1"></div>
+        <div class="ayuh-pip" id="ayuh-2"></div>
+        <div class="ayuh-pip" id="ayuh-3"></div>
+      </div>
+    </div>
+    <div class="stat-block">
       <span class="stat-label">STEALTH:</span>
       <span class="stat-value" id="stealth-display">BASE</span>
     </div>
@@ -654,10 +707,19 @@
       <ul>
         <li>You have <strong>60 minutes</strong> before dawn. Moving between sections costs 5 min.</li>
         <li>Getting cornered by a Flatlander costs <strong>10–15 minutes</strong>.</li>
-        <li>Your <strong>Dry Wit</strong> stat lets you escape with a well-timed "Ayuh." Build it up.</li>
+        <li>Your <strong>Dry Wit</strong> stat powers wit-roll escapes. Build it up.</li>
         <li>Find items — Moxie, Flannel, Maple Syrup — to gain edges.</li>
         <li>Get your boots. Get to the Brat. <strong>Do not miss morning fishing.</strong></li>
         <li>If your timer hits zero, Ida will kill you.</li>
+      </ul>
+    </div>
+
+    <div class="intro-section">
+      <div class="intro-label">New Mechanics</div>
+      <ul>
+        <li><strong>AYUH CHARGES</strong> — You start with 4 pips. Spending one guarantees a clean social escape, no roll needed. They don't refill easily. Use them wisely.</li>
+        <li><strong>FLANNEL CAMOUFLAGE</strong> — Wearing the chamois shirt lets you stand motionless beside the taxidermy moose. Tourists will mistake you for a display. Perfect concealment.</li>
+        <li><strong>PANIC METER</strong> — Every mispronounced town name raises your blood pressure. At high Panic, Ayuh rolls are penalized. At 100, you snap — costly but resets the meter. Chug a Moxie to calm down, but watch for the sugar crash.</li>
       </ul>
     </div>
 
@@ -701,6 +763,9 @@ function initGame() {
     flannelFound: false,
     turnsInSection: 0,
     encounterActive: false,
+    panic: 0,
+    ayuhCharges: 4,
+    mooseHiding: false,
   };
 
   document.getElementById('end-screen').classList.remove('show');
@@ -721,7 +786,7 @@ const SECTIONS = [
 
 Ida is outside in the Brat. The engine's been idling since midnight. You can almost hear her tapping the steering wheel.
 
-Objective: get to the Boot Deck. Pick up your Bean Boots. Get out. Simple.
+Objective: get to the Boot Section. Pick up your Bean Boots. Get out. Simple.
 
 You peek around a tent pole. One tourist in a Harvard Lampoon sweatshirt is squinting at a $340 camp stove like it owes him money.`,
     choices: () => [
@@ -735,10 +800,12 @@ You peek around a tent pole. One tourist in a Harvard Lampoon sweatshirt is squi
     name: 'TROUT POND',
     entryText: () => `You push past a rack of quick-dry fishing vests and nearly walk into L.L. Bean's famous indoor Trout Pond. The water is perfectly still. A taxidermied brook trout eyes you with quiet judgment. There's a display canoe you could hide behind.
 
-To your left: the Boot Deck stairs. To your right: a couple from Hoboken is photographing themselves with the pond. She has a ring light. He is wearing Crocs at 2 AM in Maine.${G.hasMoxie ? '' : '\n\nYou notice a single can of Moxie sitting on a bench near the pond. Someone left it behind. Possibly as an offering.'}${G.hasFlannel || G.flannelFound ? '' : ''}`,
+To your left: the Boot Section stairs. To your right: a couple from Hoboken is photographing themselves with the pond. She has a ring light. He is wearing Crocs at 2 AM in Maine.${G.hasMoxie ? '' : '\n\nYou notice a single can of Moxie sitting on a bench near the pond. Someone left it behind. Possibly as an offering.'}${G.hasFlannel || G.flannelFound ? '' : ''}`,
     choices: () => [
-      { text: 'Creep past the Hoboken couple toward the Boot Deck', action: () => moveToSection(2) },
+      { text: 'Creep past the Hoboken couple toward the Boot Section', action: () => moveToSection(2) },
       !G.moxieFound ? { text: 'Grab that Moxie off the bench', action: () => grabMoxie() } : null,
+      G.hasMoxie ? { text: 'Drink the Moxie now (-Panic, +Time, +Wit)', action: () => drinkMoxie() } : null,
+      { text: 'Stand perfectly still beside the taxidermy moose', action: () => standByMoose() },
       { text: 'Hide in the display canoe and wait for them to leave', action: () => waitInCanoe() },
       { text: 'Mutter "Good evening" and just walk through like you own the place', action: () => ownerWalk() },
     ].filter(Boolean),
@@ -746,7 +813,7 @@ To your left: the Boot Deck stairs. To your right: a couple from Hoboken is phot
   {
     id: 2,
     name: 'BOOT DECK',
-    entryText: () => `You're on the Boot Deck. The smell hits you first — leather and rubber and a hundred years of Yankee pragmatism. Rows of Bean Boots gleam under the emergency lighting like small, sensible gods.
+    entryText: () => `You're on the Boot Section. The smell hits you first — leather and rubber and a hundred years of Yankee pragmatism. Rows of Bean Boots gleam under the emergency lighting like small, sensible gods.
 
 Your size is right there on the third shelf. 10.5 Wide. Just like you called in last Tuesday.
 
@@ -755,7 +822,7 @@ Unfortunately: between you and those boots stands a man named Todd from Darien, 
 Kayla looks like she has left her body.`,
     choices: () => [
       G.hasMaple ? { text: 'Leave the Maple Syrup as a trail distraction — Todd follows the drizzle', action: () => mapleDistract() } : null,
-      { text: 'Deploy a withering "Ayuh" and shoulder past Todd', action: () => deployWit('Boot Deck') },
+      { text: 'Deploy a withering "Ayuh" and shoulder past Todd', action: () => deployWit('Boot Section') },
       { text: 'Ask Kayla a complicated question in the opposite direction', action: () => distractKayla() },
       !G.mapleFound ? { text: 'Spot a jar of Stonewall Kitchen maple syrup in the gift display', action: () => grabMaple() } : null,
       G.hasBoots ? { text: '[Boots in hand] — Head to Flannel Racks', action: () => moveToSection(3) } : null,
@@ -788,7 +855,7 @@ But of course — there's one last obstacle. A man in khaki shorts — despite i
 
 You can hear the Brat's engine. You can almost smell the coffee Ida definitely did NOT bring you.`,
     choices: () => [
-      G.hasBoots ? { text: 'Make your move — stride through with purpose', action: () => finalEscape() } : { text: 'You need boots first! Head back to the Boot Deck.', action: () => goToSection(2) },
+      G.hasBoots ? { text: 'Make your move — stride through with purpose', action: () => finalEscape() } : { text: 'You need boots first! Head back to the Boot Section.', action: () => goToSection(2) },
       { text: 'Deploy maximum Dry Wit: "Store closes at never. Good luck." Exit.', action: () => deployWit('Exit') },
       G.hasMaple ? { text: 'Leave the maple syrup on the bench — the Jerseyites investigate', action: () => finalMaple() } : null,
     ].filter(Boolean),
@@ -861,6 +928,65 @@ They are blocking the entire corridor. Completely. On both sides.`,
       { text: 'Find alternate route through the camping kitchen display', timeCost: 8, witGain: 0, desc: '-8 min' },
     ],
   },
+  // ── Mispronunciation encounters (raise Panic) ──
+  {
+    text: `A man in a Patagonia quarter-zip stops you with an open maps app.
+
+"Hey — is this the way to BANG-ger?"
+
+He says it again. "BANG-ger." Like it rhymes with "hanger." Your left eye twitches.`,
+    isMispronunciation: true,
+    panicRaise: 20,
+    options: [
+      { text: '"Bang-GOR. It rhymes with anger. Head north." Walk away.', timeCost: 3, witGain: 8, desc: '-3 min, +Wit' },
+      { text: 'Say nothing. Point north. Keep moving.', timeCost: 1, witGain: 5, desc: '-1 min' },
+      { text: 'Correct him fully. He argues. You explain Maine geography.', timeCost: 12, witGain: -5, desc: '-12 min 🗺️' },
+    ],
+  },
+  {
+    text: `A woman is on the phone, loudly, three feet away.
+
+"We're in FREE-port! Yeah, FREE-port Maine... what? No it's not near PORT-land, it's... well, it's sort of near Port-LAND but..."
+
+She turns to you. "Is Freeport near Portland?"`,
+    isMispronunciation: true,
+    panicRaise: 15,
+    options: [
+      { text: '"Twenty minutes. South on 295." Turn and leave.', timeCost: 2, witGain: 5, desc: '-2 min' },
+      { text: 'Deploy Ayuh charge — single nod toward the highway, gone.', timeCost: 0, witGain: 10, desc: 'Uses 1 Ayuh pip', isAyuhSpend: true },
+      { text: 'Explain Maine geography. She has many more questions.', timeCost: 11, witGain: -5, desc: '-11 min 📍' },
+    ],
+  },
+  {
+    text: `A man asks a store associate where to find "MOX-ee."
+
+"You know — MOX-ee? The soda? We had it at home when I was a kid. MOX-ee."
+
+He is saying it fine. You don't know why this bothers you. It just does. Everything tonight bothers you.
+
+Your panic rises for no reason you can fully articulate. It is 2 AM.`,
+    isMispronunciation: true,
+    panicRaise: 10,
+    options: [
+      { text: 'Breathe deeply. This is fine. Keep moving.', timeCost: 2, witGain: 5, desc: '-2 min, -Panic' },
+      G.hasMoxie ? { text: 'Drink YOUR Moxie right now. Claim it.', timeCost: 0, witGain: 10, desc: 'Use Moxie item', isMoxieDrink: true } : null,
+      { text: 'Lean against a rack and collect yourself', timeCost: 6, witGain: 0, desc: '-6 min' },
+    ].filter(Boolean),
+  },
+  {
+    text: `Someone ahead of you is asking where "Kennebunk-PORT" is.
+
+Not Kennebunk. Not Kennebunkport. "Kennebunk-PORT." Like they're announcing a ship.
+
+"Is Kennebunk-PORT near here? We want to see where the Bushes lived."`,
+    isMispronunciation: true,
+    panicRaise: 18,
+    options: [
+      { text: '"South. Forty-five minutes. Off 95." Done.', timeCost: 3, witGain: 8, desc: '-3 min' },
+      { text: 'Say nothing and walk past them like a ghost.', timeCost: 1, witGain: 10, desc: '-1 min' },
+      { text: 'Correct the pronunciation. They don\'t hear it. Repeat.', timeCost: 10, witGain: -8, desc: '-10 min 🗣️' },
+    ],
+  },
 ];
 
 // ═══════════════════════════════════════════════
@@ -891,12 +1017,28 @@ function renderStats() {
   const wd  = document.getElementById('wit-display');
   const sd  = document.getElementById('stealth-display');
   const bd  = document.getElementById('boots-display');
+  const pd  = document.getElementById('panic-display');
+  const pbi = document.getElementById('panic-bar-inner');
 
   tv.textContent = G.time + ' MIN';
   tv.className = 'stat-value' + (G.time <= 15 ? ' danger' : G.time <= 30 ? ' warning' : '');
 
   tbi.style.width = Math.max(0, (G.time / 60) * 100) + '%';
   tbi.style.background = G.time <= 15 ? 'var(--red)' : G.time <= 30 ? 'var(--amber)' : 'var(--green)';
+
+  // Panic bar
+  const panicPct = Math.min(100, G.panic);
+  pbi.style.width = panicPct + '%';
+  pd.textContent = G.panic;
+  pd.style.color = G.panic >= 80 ? 'var(--red)' : G.panic >= 50 ? 'var(--amber)' : 'var(--green-dim)';
+  if (G.panic >= 80) pd.style.animation = 'pulse-red 1s infinite';
+  else pd.style.animation = 'none';
+
+  // Ayuh pips
+  for (let i = 0; i < 4; i++) {
+    const pip = document.getElementById('ayuh-' + i);
+    if (pip) pip.className = 'ayuh-pip' + (i < G.ayuhCharges ? '' : ' empty');
+  }
 
   wbi.style.width = G.wit + '%';
   wd.textContent = G.wit;
@@ -1031,7 +1173,7 @@ You are not going to drink it yet. This is strategic Moxie. A Moxie held in rese
   renderInventory();
   setChoices([
     { text: 'Drink the Moxie NOW (+15 min)', action: () => drinkMoxie() },
-    { text: 'Save it and head toward the Boot Deck', action: () => moveToSection(2) },
+    { text: 'Save it and head toward the Boot Section', action: () => moveToSection(2) },
     { text: 'Hide in the canoe and assess the situation', action: () => waitInCanoe() },
   ]);
 }
@@ -1041,12 +1183,114 @@ function drinkMoxie() {
   G.hasMoxie = false;
   gainTime(15);
   G.wit = Math.min(100, G.wit + 10);
-  setText(`You crack the Moxie open. The sound echoes through the store like a starting pistol. Nobody reacts — they're all arguing about fleece weights.
+  const panicBefore = G.panic;
+  G.panic = Math.max(0, G.panic - 35);
 
-The familiar coal-tar bitterness courses through you. Your shoulders drop. Your eyes get clear. Your grandfather drank this. His grandfather drank this. You are a man of Maine and you are going to get these boots and go home.
+  // Sugar crash risk: 30% chance if panic was already low
+  const crashed = panicBefore < 30 && Math.random() < 0.3;
+  if (crashed) {
+    spendTime(8);
+    if (G.gameOver) return;
+    setText(`You crack the Moxie. The coal-tar bitterness hits immediately — your grandfather's drink, his grandfather's drink. Your blood pressure drops like a stone.
 
-+15 minutes. +10 Dry Wit.`);
+Then the sugar hits. Your vision swims. You grip a flannel rack for support and stare at the ceiling for eight minutes.
+
++15 min (time). -35 Panic. +10 Wit. But sugar crash: -8 min.`);
+  } else {
+    setText(`You crack the Moxie open. The sound echoes through the store like a starting pistol. Nobody reacts — they're all arguing about fleece weights.
+
+The familiar coal-tar bitterness courses through you. Your blood pressure eases. Your shoulders drop. Your grandfather drank this. You are a man of Maine and you are going to get these boots and go home.
+
++15 minutes. -35 Panic. +10 Dry Wit.`);
+  }
   renderInventory();
+  renderStats();
+  setChoices(SECTIONS[G.section].choices());
+}
+
+// ── Flannel Camouflage: stand still near the taxidermy moose ──
+function standByMoose() {
+  G.mooseHiding = true;
+  if (G.hasFlannel) {
+    // Flannel = near-perfect camouflage
+    G.wit = Math.min(100, G.wit + 15);
+    setText(`You position yourself beside the taxidermied moose, flannel shirt perfectly matching the rustic display aesthetic. You go still. Completely still.
+
+A couple from Westchester walks past. The woman points at you. "Oh look, they have a MANNEQUIN now. So authentic." Her husband photographs you.
+
+You do not move. You are the display. You are Maine itself.
+
+They leave. +15 Wit. Zero time lost. Flannel camouflage: PERFECT.`);
+    setChoices([{ text: 'Proceed to the Boot Section', action: () => moveToSection(2) }]);
+  } else {
+    const roll = Math.random();
+    if (roll < 0.55) {
+      spendTime(4);
+      if (G.gameOver) return;
+      G.wit = Math.min(100, G.wit + 8);
+      setText(`You stand rigid beside the taxidermy moose. Arms at your sides. Eyes fixed on the middle distance. You become part of the display.
+
+Three tourists walk past without a second glance. One drops a Clif Bar at your feet as if you're a tip jar. You wait until they're gone.
+
+-4 min (standing time). +8 Wit.`);
+      setChoices([{ text: 'Continue to the Boot Section', action: () => moveToSection(2) }]);
+    } else {
+      spendTime(10);
+      if (G.gameOver) return;
+      setText(`You stand next to the moose. You commit. Unfortunately, a child from New Hampshire tugs her mother's sleeve: "Mommy that man is BLINKING."
+
+Her mother apologizes to you on behalf of her daughter. Then she asks if you work there. Then she asks about hiking trails. -10 min.`);
+      setChoices(SECTIONS[G.section].choices());
+    }
+  }
+  renderStats();
+}
+
+// ── Ayuh charge: spend one to auto-succeed a social escape ──
+function fireAyuh(location) {
+  if (G.ayuhCharges <= 0) {
+    setText(`You open your mouth. Nothing comes out. You've said "Ayuh" so many times tonight the word has lost all meaning. Even to you.\n\nYou are going to have to do this the hard way.`);
+    setChoices(SECTIONS[G.section].choices());
+    return;
+  }
+  G.ayuhCharges--;
+  G.panic = Math.max(0, G.panic - 10);
+  G.wit = Math.min(100, G.wit + 8);
+
+  const lines = {
+    'Boot Section': `You look Todd in the eye. One word. Flat as a lake in August:\n\n"Ayuh."\n\nTodd stops. Something ancient and Yankee in his DNA recognizes the word as final. He steps aside. He doesn't know why. He will think about it later.\n\nYou have your boots.`,
+    'Flannel Racks': `"Ayuh."\n\nOne word. The debate about cottagecore stops. Both women look at you. You nod once. You are through the rack gap before they recover.\n\nThe word hangs in the air behind you like woodsmoke.`,
+    'Exit': `You look at the man in khaki shorts.\n\n"Ayuh."\n\nHe doesn't know what it means. He doesn't need to. The door greeter nods gravely. You walk through.\n\nFreedom.`,
+    'default': `"Ayuh."\n\nIt works. It always works, if you mean it. You're through.`,
+  };
+
+  const afterActions = {
+    'Boot Section': () => { G.hasBoots = true; renderInventory(); renderStats(); setChoices([{ text: 'Head to the Flannel Racks', action: () => moveToSection(3) }]); },
+    'Flannel Racks': () => moveToSection(4, true),
+    'Exit': () => finalEscape(),
+    'default': () => setChoices(SECTIONS[G.section].choices()),
+  };
+
+  setText(lines[location] || lines['default']);
+  renderStats();
+  const after = afterActions[location] || afterActions['default'];
+  if (location === 'Exit') { setTimeout(after, 100); } else { after(); }
+}
+
+// ── Panic helpers ──
+function raisePanic(amount) {
+  G.panic = Math.min(100, G.panic + amount);
+  renderStats();
+  if (G.panic >= 100) triggerPanicSnap();
+}
+
+function triggerPanicSnap() {
+  // Panic overflow: Ernie snaps, costs time, resets panic to 60
+  spendTime(10);
+  if (G.gameOver) return;
+  G.panic = 60;
+  G.ayuhCharges = Math.min(4, G.ayuhCharges + 1); // adrenaline refills one pip
+  setText(`Your blood pressure hits the ceiling.\n\nA man from New York just said "Is this the way to BANG-ger?" for the third time in your earshot. Something in you — something deep and generational — snaps.\n\nYou say, very quietly but very clearly: "It's BANG-gor. It rhymes with 'anger.' Which I have."\n\nYou breathe. The man nods, terrified. You walk away. -10 min. Panic reset. +1 Ayuh charge (adrenaline).`);
   renderStats();
   setChoices(SECTIONS[G.section].choices());
 }
@@ -1059,7 +1303,7 @@ function waitInCanoe() {
 Eventually they drift toward the kayaks.
 
 The way is clear. Also your back hurts. -8 minutes.`);
-  setChoices([{ text: 'Head to the Boot Deck', action: () => moveToSection(2) }]);
+  setChoices([{ text: 'Head to the Boot Section', action: () => moveToSection(2) }]);
 }
 
 function ownerWalk() {
@@ -1071,7 +1315,7 @@ function ownerWalk() {
 They return to their photos. You are already gone.
 
 Dry Wit +12.`);
-    setChoices([{ text: 'Continue to the Boot Deck', action: () => moveToSection(2) }]);
+    setChoices([{ text: 'Continue to the Boot Section', action: () => moveToSection(2) }]);
   } else {
     spendTime(10);
     if (G.gameOver) return;
@@ -1080,7 +1324,7 @@ Dry Wit +12.`);
 "Hey! Local guy! What's a good hike? Something moderate. But also scenic. And with a view. And not too crowded. And we have a 4-year-old. And a dog. But the dog has anxiety."
 
 You answer three of these. It costs you. -10 minutes.`);
-    setChoices([{ text: 'Extract yourself and head to the Boot Deck', action: () => moveToSection(2) }]);
+    setChoices([{ text: 'Extract yourself and head to the Boot Section', action: () => moveToSection(2) }]);
   }
 }
 
@@ -1113,7 +1357,7 @@ function distractKayla() {
   spendTime(7);
   if (G.gameOver) return;
   G.wit = Math.min(100, G.wit + 8);
-  setText(`You position yourself on the far side of the Boot Deck and raise your hand. "Kayla? Do you have the Handsewn Camp Moc in a 13EEE?"
+  setText(`You position yourself on the far side of the Boot Section and raise your hand. "Kayla? Do you have the Handsewn Camp Moc in a 13EEE?"
 
 Kayla nods with the hollow eyes of a professional and moves toward the stockroom. Todd follows, since Kayla is his anchor to reality.
 
@@ -1125,14 +1369,18 @@ You have thirty seconds. You find your boots. You do not try them on. You know t
 }
 
 function deployWit(location) {
+  // If player has charges, route to the guaranteed Ayuh system
+  if (G.ayuhCharges > 0) { fireAyuh(location); return; }
+  // No charges — pure wit roll, penalized by panic
   const roll = Math.random() * 100;
   const threshold = location === 'Exit' ? 45 : 55;
-  const success = G.wit >= threshold || roll < G.wit;
+  const panicPenalty = G.panic >= 70 ? 20 : G.panic >= 40 ? 10 : 0;
+  const success = (G.wit - panicPenalty) >= threshold || roll < (G.wit - panicPenalty);
 
   if (success) {
     G.wit = Math.min(100, G.wit + 10);
     const quips = {
-      'Boot Deck': `You turn to Todd. You look him square in the eye. You say, very quietly:
+      'Boot Section': `You turn to Todd. You look him square in the eye. You say, very quietly:
 
 "Ayuh."
 
@@ -1153,18 +1401,18 @@ You are already at the exit corridor.`,
 He nods with profound respect for institutional continuity. You walk through the door.`
     };
     const afterAction = {
-      'Boot Deck': () => { G.hasBoots = true; renderInventory(); renderStats(); setChoices([{ text: 'Head to the Flannel Racks', action: () => moveToSection(3) }]); },
+      'Boot Section': () => { G.hasBoots = true; renderInventory(); renderStats(); setChoices([{ text: 'Head to the Flannel Racks', action: () => moveToSection(3) }]); },
       'Flannel Racks': () => moveToSection(4, true),
       'Exit': () => finalEscape(),
     };
     setText(quips[location] || 'Ayuh.');
     setTimeout(() => afterAction[location] && afterAction[location](), location === 'Exit' ? 100 : 0);
   } else {
-    spendTime(location === 'Boot Deck' ? 10 : 8);
+    spendTime(location === 'Boot Section' ? 10 : 8);
     if (G.gameOver) return;
     G.wit = Math.max(0, G.wit - 5);
     const fails = {
-      'Boot Deck': `You attempt the Ayuh. But something — nerves, fatigue, the foam sleeping pad still stuck to your face — makes it land wrong. Todd hears it as an invitation.
+      'Boot Section': `You attempt the Ayuh. But something — nerves, fatigue, the foam sleeping pad still stuck to your face — makes it land wrong. Todd hears it as an invitation.
 
 "Oh, so you ARE local! Perfect. So here's my question about the boots..."
 
@@ -1224,7 +1472,7 @@ function waitAction() {
 function finalEscape() {
   if (!G.hasBoots) {
     setText(`You push toward the door — and then stop. You didn't get the boots.\n\nIda's out there. Without boots, this whole thing was for nothing. You turn around.`);
-    setChoices([{ text: 'Go back for the boots (Boot Deck)', action: () => goToSection(2) }]);
+    setChoices([{ text: 'Go back for the boots (Boot Section)', action: () => goToSection(2) }]);
     return;
   }
   triggerWin();
@@ -1262,7 +1510,7 @@ function triggerEncounter() {
     const btn = document.createElement('button');
     btn.className = 'choice-btn encounter-btn';
     btn.textContent = opt.text + '  [' + opt.desc + ']';
-    btn.onclick = () => resolveEncounter(opt, popup);
+    btn.onclick = () => resolveEncounter(opt, popup, enc);
     choicesDiv.appendChild(btn);
   });
 
@@ -1270,32 +1518,58 @@ function triggerEncounter() {
   G.encounterActive = true;
 }
 
-function resolveEncounter(opt, popup) {
+function resolveEncounter(opt, popup, enc) {
   popup.style.display = 'none';
   G.encounterActive = false;
+
+  // Raise panic for mispronunciation encounters regardless of choice
+  if (enc && enc.isMispronunciation && enc.panicRaise) {
+    raisePanic(enc.panicRaise);
+    if (G.gameOver) return;
+  }
+
+  // Special option types
+  if (opt.isAyuhSpend) {
+    if (G.ayuhCharges > 0) {
+      G.ayuhCharges--;
+      G.wit = Math.min(100, G.wit + opt.witGain);
+      G.panic = Math.max(0, G.panic - 10);
+      setText(`You deploy the Ayuh. One syllable. Absolute. The tourist is still processing as you round the corner.\n\nAyuh charge spent. Panic -10. Wit +${opt.witGain}.`);
+    } else {
+      spendTime(6);
+      if (G.gameOver) return;
+      setText(`You reach for the Ayuh — and there's nothing left. You've burned through all your reserves. You end up nodding awkwardly for six minutes. -6 min.`);
+    }
+    renderStats();
+    setChoices(SECTIONS[G.section].choices());
+    return;
+  }
+
+  if (opt.isMoxieDrink) {
+    drinkMoxie();
+    return;
+  }
 
   let cost = opt.timeCost;
 
   if (opt.isWitTest) {
-    if (G.wit >= opt.witThreshold) {
+    const panicPenalty = G.panic >= 70 ? 20 : G.panic >= 40 ? 10 : 0;
+    if ((G.wit - panicPenalty) >= opt.witThreshold) {
       cost = 0;
       G.wit = Math.min(100, G.wit + opt.witGain);
-      setText(`AYUH.\n\nThey don't know what to do with that. You're gone before their brain finishes parsing.
-
-Dry Wit check: PASSED. Time cost: 0 minutes.`);
+      setText(`AYUH.\n\nThey don't know what to do with that. You're gone before their brain finishes parsing.\n\nDry Wit check: PASSED. Time cost: 0 minutes.`);
     } else {
       cost = 8;
       G.wit = Math.max(0, G.wit - 5);
-      setText(`The Ayuh doesn't land. Your Dry Wit is still developing. You lose some time before extracting yourself.
-
-Dry Wit check: FAILED. -8 minutes, -5 Wit.`);
+      const panicNote = panicPenalty > 0 ? ` (Panic penalty: -${panicPenalty} effective Wit)` : '';
+      setText(`The Ayuh doesn't land. Your Dry Wit is still developing${panicNote}. You lose time before extracting yourself.\n\nDry Wit check: FAILED. -8 minutes, -5 Wit.`);
     }
   } else {
     G.wit = Math.min(100, Math.max(0, G.wit + opt.witGain));
-    let resultText = cost <= 5
-      ? `Clean escape. -${cost} minutes.`
-      : cost <= 10
-      ? `You make it out. It takes a while. -${cost} minutes.`
+    const resultText = cost <= 3
+      ? `Clean escape. -${cost} minute${cost === 1 ? '' : 's'}.`
+      : cost <= 8
+      ? `You make it out. It takes a moment. -${cost} minutes.`
       : `You get drawn in deeper than expected. -${cost} minutes. Ida is going to hear about this.`;
     setText(resultText);
   }
