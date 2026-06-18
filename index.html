@@ -477,15 +477,21 @@
     inset: 0;
     background: #000;
     z-index: 500;
-    display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 30px;
+    padding: 30px 16px;
     text-align: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   #end-screen.show { display: flex; }
+
+  /* Auto-margins center the content but still allow scrolling to the top
+     when it overflows (avoids the flex top-clipping bug). */
+  #end-title { margin-top: auto; }
+  #restart-btn { margin-bottom: auto; }
 
   #end-title {
     font-size: 22px;
@@ -536,28 +542,28 @@
     inset: 0;
     background: #000;
     z-index: 600;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    padding: 24px 16px 40px;
+    justify-content: center;
+    padding: 16px;
     text-align: left;
   }
 
   #intro-screen.hidden { display: none; }
 
   #intro-inner {
-    max-width: 640px;
-    width: 100%;
+    width: 80%;
+    max-width: 720px;
+    max-height: 85vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     border: 2px solid var(--green);
     padding: 28px 24px;
     box-shadow: 0 0 30px var(--green-dim), inset 0 0 20px rgba(57,255,20,0.03);
   }
 
-  @media (min-height: 800px) {
-    #intro-screen { justify-content: center; }
+  @media (max-width: 640px) {
+    #intro-inner { width: 92%; max-height: 88vh; padding: 22px 16px; }
   }
 
   #intro-inner h2 {
