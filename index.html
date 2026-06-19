@@ -650,6 +650,47 @@
     animation: blink 1.2s step-end infinite;
   }
 
+  /* ===== SCENE ART PANEL ===== */
+  #scene-panel {
+    border-bottom: 1px solid var(--green-dim);
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    overflow: hidden;
+  }
+  #scene-art { width: 100%; max-width: 560px; line-height: 0; color: var(--green); }
+  #scene-art svg {
+    width: 100%;
+    height: auto;
+    max-height: 210px;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 0 4px rgba(57,255,20,0.45));
+  }
+  .scene-fade { animation: sceneIn 0.5s ease; }
+  @keyframes sceneIn { from { opacity: 0; } to { opacity: 1; } }
+  @media (max-width: 600px) { #scene-art svg { max-height: 150px; } }
+  @media (prefers-reduced-motion: reduce) { .scene-fade { animation: none; } }
+
+  /* ===== STATUS / PACE CHIPS ===== */
+  .status-chip {
+    padding: 2px 8px;
+    border: 1px solid var(--amber);
+    color: var(--amber);
+    font-size: calc(10px * var(--fscale));
+    white-space: nowrap;
+    text-shadow: 0 0 4px var(--amber);
+  }
+  .choice-btn.pace-btn { border-color: var(--green-mid); }
+  .choice-btn.continue-btn {
+    text-align: center;
+    border-style: dashed;
+    letter-spacing: 2px;
+  }
+  .choice-btn.continue-btn::before { content: ''; }
+
   /* scrollbar */
   #narrative-box::-webkit-scrollbar { width: 6px; }
   #narrative-box::-webkit-scrollbar-track { background: #000; }
@@ -753,15 +794,15 @@
 
   <!-- SECTION PROGRESS -->
   <div id="section-bar">
-    <span class="section-node" id="sn-0">CAMPING GEAR</span>
+    <span class="section-node" id="sn-0">CAMPING</span>
     <span class="section-sep">──►</span>
     <span class="section-node" id="sn-1">TROUT POND</span>
     <span class="section-sep">──►</span>
-    <span class="section-node" id="sn-2">BOOT DECK</span>
+    <span class="section-node" id="sn-2">BOOT WALL</span>
     <span class="section-sep">──►</span>
-    <span class="section-node" id="sn-3">FLANNEL RACKS</span>
+    <span class="section-node" id="sn-3">FLANNEL</span>
     <span class="section-sep">──►</span>
-    <span class="section-node" id="sn-4">EXIT VESTIBULE</span>
+    <span class="section-node" id="sn-4">EXIT</span>
   </div>
 
   <!-- MAIN GAME AREA -->
@@ -772,6 +813,9 @@
       <div id="encounter-text"></div>
       <div id="encounter-choices" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
+
+    <!-- SCENE ART -->
+    <div id="scene-panel"><div id="scene-art"></div></div>
 
     <!-- NARRATIVE -->
     <div id="narrative-box">
@@ -814,24 +858,32 @@
     <hr id="intro-divider">
 
     <div class="intro-section">
-      <div class="intro-label">The Rules</div>
+      <div class="intro-label">The Journey</div>
+      <p>It's a trek from the tent to the Brat, through five departments. You don't teleport between them — you <strong>travel</strong>, aisle by aisle, and the store is never the same twice. The number of aisles, who you meet, and what happens is rolled fresh every run.</p>
+    </div>
+
+    <div class="intro-section">
+      <div class="intro-label">Set Your Pace</div>
       <ul>
-        <li>You have <strong>60 minutes</strong> before dawn. Moving between sections costs 5 min.</li>
-        <li>Getting cornered by a Flatlander costs <strong>10–15 minutes</strong>.</li>
-        <li>Your <strong>Dry Wit</strong> stat powers wit-roll escapes. Build it up.</li>
-        <li>Find items — Moxie, Flannel, Maple Syrup — to gain edges.</li>
-        <li>Get your boots. Get to the Brat. <strong>Do not miss morning fishing.</strong></li>
-        <li>If your timer hits zero, Ida will kill you.</li>
+        <li><strong>MOSEY</strong> — slow &amp; quiet. Burns the clock but calms Panic and sharpens Dry Wit. Few encounters.</li>
+        <li><strong>WALK</strong> — steady, balanced.</li>
+        <li><strong>BEELINE</strong> — fast. Saves precious minutes but spikes Panic and draws Flatlanders like flies. Risky.</li>
       </ul>
     </div>
 
     <div class="intro-section">
-      <div class="intro-label">New Mechanics</div>
+      <div class="intro-label">Manage Your Supplies</div>
       <ul>
-        <li><strong>AYUH CHARGES</strong> — You start with 4 pips. Spending one guarantees a clean social escape, no roll needed. They don't refill easily. Use them wisely.</li>
-        <li><strong>FLANNEL CAMOUFLAGE</strong> — Wearing the chamois shirt lets you stand motionless beside the taxidermy moose. Tourists will mistake you for a display. Perfect concealment.</li>
-        <li><strong>PANIC METER</strong> — Every mispronounced town name raises your blood pressure. At high Panic, Ayuh rolls are penalized. At 100, you snap — costly but resets the meter. Chug a Moxie to calm down, but watch for the sugar crash.</li>
+        <li><strong>TIME</strong> — 60 minutes to dawn. Your oxen. Don't run out.</li>
+        <li><strong>AYUH CHARGES</strong> — your ammunition. Spend one to win an <strong>Ayuh Standoff</strong> — a timing duel against a cornering tourist. They don't refill easily.</li>
+        <li><strong>PANIC</strong> — climbs when tourists mangle town names. High Panic widens the Standoff's odds against you; hit 100 and you snap.</li>
+        <li><strong>ITEMS</strong> — Moxie (calm + time), Maple Syrup (distraction), the Chamois Flannel (camouflage), Lifesavers. Scattered randomly — grab them when you pass.</li>
       </ul>
+    </div>
+
+    <div class="intro-section">
+      <div class="intro-label">The Goal</div>
+      <p>Reach the <strong>Boot Wall</strong>, claim your 10.5 Wide, and make the Exit before the clock hits zero. Miss morning fishing and Ida will not forgive you. <strong>Good luck. Don't get cornered.</strong></p>
     </div>
 
     <button id="begin-btn" onclick="beginGame()">[ PRESS ENTER TO BEGIN ]</button>
@@ -888,27 +940,251 @@ function resetFontScale() {
 </script>
 
 <script>
-// ═══════════════════════════════════════════════
-//  UTILITIES
-// ═══════════════════════════════════════════════
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+// ═══════════════════════════════════════════════════════════════
+//  L.L. BEAN AT MIDNIGHT  —  Oregon-Trail-style travel engine
+// ═══════════════════════════════════════════════════════════════
 
-// ── Random tourist profiles ──
+// ── Utilities ──
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+function chance(p){return Math.random()<p;}
+
+// ═══════════════════════════════════════════════
+//  SVG LANDMARK SCENES (monochrome green line-art)
+// ═══════════════════════════════════════════════
+const SVG_OPEN = '<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">';
+const STARS = '<g stroke-width="1.6" opacity="0.8"><path d="M24 22h.5"/><path d="M52 14h.5"/><path d="M88 26h.5"/><path d="M150 16h.5"/><path d="M196 30h.5"/><path d="M214 18h.5"/></g>';
+
+const SCENES = {
+  camp: SVG_OPEN + STARS +
+    '<path d="M210 30a13 13 0 1 1-7-11 10 10 0 0 0 7 11z" fill="currentColor" fill-opacity="0.18"/>' +
+    // pines
+    '<path d="M40 104l-12 0 7-10-5 0 9-12-5 0 6-9 6 9-5 0 9 12-5 0 7 10-12 0z" fill="currentColor" fill-opacity="0.12"/>' +
+    '<path d="M196 108l-9 0 5-8-4 0 7-9-4 0 5-7 5 7-4 0 7 9-4 0 5 8-9 0z" fill="currentColor" fill-opacity="0.12"/>' +
+    // tent
+    '<path d="M92 110 L132 58 L172 110 Z" fill="currentColor" fill-opacity="0.10"/>' +
+    '<path d="M132 58 L132 110"/>' +
+    '<path d="M120 110 L132 84 L144 110"/>' +
+    '<path d="M132 58 L138 50"/>' +
+    // ground
+    '<path d="M14 110 H226"/></svg>',
+
+  pond: SVG_OPEN + STARS +
+    // pond
+    '<ellipse cx="120" cy="92" rx="96" ry="26" fill="currentColor" fill-opacity="0.08"/>' +
+    '<path d="M44 92q20 -7 40 0t40 0t40 0t30 0" opacity="0.7"/>' +
+    '<path d="M58 100q20 -6 40 0t40 0t40 0" opacity="0.5"/>' +
+    // fish jumping
+    '<path d="M150 58q14 -10 30 -4-10 2-14 10-2 -8-16 -6z" fill="currentColor" fill-opacity="0.15"/>' +
+    '<path d="M180 54l8 -5-2 8z" fill="currentColor" fill-opacity="0.2"/>' +
+    '<path d="M150 58q-4 6 -2 12" opacity="0.5"/>' +
+    // canoe
+    '<path d="M58 84q26 14 52 0" />' +
+    '<path d="M64 82q20 9 40 0" opacity="0.5"/>' +
+    // reeds
+    '<path d="M30 92q-3 -16 2 -26"/><path d="M36 92q1 -14 6 -22"/></svg>',
+
+  boots: SVG_OPEN +
+    // shelves
+    '<path d="M20 44 H220" opacity="0.55"/><path d="M20 86 H220" opacity="0.55"/><path d="M20 122 H220" opacity="0.55"/>' +
+    '<path d="M30 24 V122" opacity="0.4"/><path d="M210 24 V122" opacity="0.4"/>' +
+    // hero boot (top shelf), filled
+    '<g transform="translate(96,8)">' +
+      '<path d="M30 4 h16 v22 l10 8 v12 h-44 v-10 l8 -6 v-18 h10 z" fill="currentColor" fill-opacity="0.14"/>' +
+      '<path d="M12 40 h44 l4 6 h-52 z" fill="currentColor" fill-opacity="0.25"/>' +
+      '<path d="M30 10 h12"/><path d="M30 18 h12"/><path d="M30 26 h12"/>' +
+    '</g>' +
+    // little boots on lower shelves
+    '<path d="M46 70 h10 v10 l6 4 h-20 l4 -4 z" fill="currentColor" fill-opacity="0.18"/>' +
+    '<path d="M170 70 h10 v10 l6 4 h-20 l4 -4 z" fill="currentColor" fill-opacity="0.18"/>' +
+    '<path d="M46 106 h10 v10 l6 4 h-20 l4 -4 z" fill="currentColor" fill-opacity="0.18"/>' +
+    '<path d="M170 106 h10 v10 l6 4 h-20 l4 -4 z" fill="currentColor" fill-opacity="0.18"/></svg>',
+
+  flannel: SVG_OPEN +
+    // rack bar
+    '<path d="M18 34 H222"/><path d="M30 28 V40" opacity="0.5"/><path d="M210 28 V40" opacity="0.5"/>' +
+    // hangers + shirts with plaid
+    function(){ let s=''; const xs=[58,108,158]; xs.forEach(function(x){
+      s+='<path d="M'+x+' 34 l-6 8 m6 -8 l6 8" />';
+      s+='<path d="M'+(x-16)+' 44 h32 l6 56 h-44 z" fill="currentColor" fill-opacity="0.10"/>';
+      // plaid lines
+      s+='<g opacity="0.45" stroke-width="1.4">';
+      s+='<path d="M'+(x-16)+' 60 h32"/><path d="M'+(x-18)+' 78 h36"/>';
+      s+='<path d="M'+(x-8)+' 44 v56"/><path d="M'+(x+8)+' 44 v56"/>';
+      s+='</g>';
+    }); return s; }() +
+    '<path d="M14 122 H226" opacity="0.4"/></svg>',
+
+  exit: SVG_OPEN + STARS +
+    // giant bean boot statue
+    '<g transform="translate(20,40)">' +
+      '<path d="M14 6 h14 v30 l14 10 v14 h-50 v-12 l8 -8 v-28 h14 z" fill="currentColor" fill-opacity="0.13"/>' +
+      '<path d="M-8 60 h50 l5 8 h-60 z" fill="currentColor" fill-opacity="0.22"/>' +
+    '</g>' +
+    // door frame
+    '<path d="M96 36 h54 v82 h-54 z" opacity="0.55"/><path d="M123 36 v82" opacity="0.4"/>' +
+    // the Brat, with headlight beams
+    '<g transform="translate(150,86)">' +
+      '<path d="M4 22 h66 v-12 l-14 -10 h-30 l-10 10 h-12 z" fill="currentColor" fill-opacity="0.14"/>' +
+      '<path d="M22 0 h22 l10 10 h-42 z" fill="currentColor" fill-opacity="0.10"/>' +
+      '<circle cx="18" cy="24" r="5"/><circle cx="56" cy="24" r="5"/>' +
+      '<path d="M70 12 l24 -8 m-24 14 l24 4" opacity="0.5"/>' +
+    '</g>' +
+    '<path d="M10 110 H230"/></svg>',
+
+  aisle: SVG_OPEN +
+    // vanishing-point aisle
+    '<path d="M10 130 L100 56 M230 130 L140 56" opacity="0.7"/>' +
+    '<path d="M100 56 H140" opacity="0.7"/>' +
+    // shelf rungs left
+    '<g opacity="0.4"><path d="M22 118 L104 64"/><path d="M40 104 L108 70"/><path d="M58 92 L112 76"/></g>' +
+    '<g opacity="0.4"><path d="M218 118 L136 64"/><path d="M200 104 L132 70"/><path d="M182 92 L128 76"/></g>' +
+    // Ernie walking (small figure)
+    '<g transform="translate(112,86)" stroke-width="2.2">' +
+      '<circle cx="8" cy="4" r="5" fill="currentColor" fill-opacity="0.2"/>' +
+      '<path d="M8 9 v14"/><path d="M8 13 l-7 6 M8 13 l7 5"/><path d="M8 23 l-6 12 M8 23 l6 11"/>' +
+    '</g>' +
+    '<path d="M6 132 H234" opacity="0.5"/></svg>',
+};
+
+function showScene(tag){
+  const el = document.getElementById('scene-art');
+  if (!el) return;
+  el.innerHTML = SCENES[tag] || '';
+  const svg = el.firstElementChild;
+  if (svg) { svg.classList.remove('scene-fade'); void svg.offsetWidth; svg.classList.add('scene-fade'); }
+}
+
+// ═══════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════
 const TOURISTS = [
-  { origin: 'Greenwich, CT', name: 'Brad', item: 'a NorthFace vest over a Nantucket fleece', quirk: 'keeps asking if things are "locally sourced"' },
-  { origin: 'Hoboken, NJ',   name: 'Kyle', item: 'fresh Bean Boots he bought ten minutes ago and is already wearing', quirk: 'describes everything as "very curated"' },
-  { origin: 'Scarsdale, NY', name: 'Derek', item: 'a $600 sleeping bag still in the box', quirk: 'has strong opinions about thread counts' },
-  { origin: 'Darien, CT',    name: 'Todd', item: 'a Patagonia vest over a dress shirt', quirk: 'cannot make decisions without consulting his phone' },
-  { origin: 'Montclair, NJ', name: 'Brendan', item: 'a monogrammed L.L. Bean tote overflowing with merchandise', quirk: 'introduces himself to store employees by first name' },
-  { origin: 'Westport, CT',  name: 'Chad', item: 'hiking poles he is using indoors', quirk: 'uses the word "authentic" every forty seconds' },
-  { origin: 'Short Hills, NJ', name: 'Trent', item: 'three different fleece weights for "layering options"', quirk: 'is audibly calculating cost-per-use on every item' },
+  { origin:'Greenwich, CT', name:'Brad',    item:'a NorthFace vest over a Nantucket fleece', quirk:'keeps asking if things are "locally sourced"' },
+  { origin:'Hoboken, NJ',   name:'Kyle',    item:'fresh Bean Boots he is already wearing',   quirk:'describes everything as "very curated"' },
+  { origin:'Scarsdale, NY', name:'Derek',   item:'a $600 sleeping bag still in the box',      quirk:'has strong opinions about thread counts' },
+  { origin:'Darien, CT',    name:'Todd',    item:'a Patagonia vest over a dress shirt',       quirk:'cannot decide without consulting his phone' },
+  { origin:'Montclair, NJ', name:'Brendan', item:'a monogrammed tote overflowing with gear',  quirk:'introduces himself to employees by first name' },
+  { origin:'Westport, CT',  name:'Chad',    item:'hiking poles he is using indoors',          quirk:'uses the word "authentic" every forty seconds' },
+];
+
+const LANDMARKS = [
+  { id:'camp',    name:'CAMPING GEAR',   scene:'camp',    node:0 },
+  { id:'pond',    name:'TROUT POND',     scene:'pond',    node:1 },
+  { id:'boots',   name:'BOOT WALL',      scene:'boots',   node:2, objective:true },
+  { id:'flannel', name:'FLANNEL RACKS',  scene:'flannel', node:3 },
+  { id:'exit',    name:'EXIT VESTIBULE', scene:'exit',    node:4, final:true },
+];
+
+const PACES = [
+  { id:'mosey',   label:'MOSEY',   tag:'slow & quiet',     time:6, risk:0.22, panic:-4, wit:3 },
+  { id:'walk',    label:'WALK',    tag:'steady',           time:4, risk:0.45, panic:0,  wit:1 },
+  { id:'beeline', label:'BEELINE', tag:'fast & reckless',  time:2, risk:0.70, panic:6,  wit:0 },
+];
+
+const STATUS_DEFS = {
+  cornered:    { label:'CORNERED',     turns:3 },
+  caffeinated: { label:'CAFFEINATED CROWD', turns:3 },
+  secondwind:  { label:'SECOND WIND',  turns:3 },
+  sugarcrash:  { label:'SUGAR CRASH',  turns:1 },
+  camo:        { label:'FLANNEL CAMO', turns:999 },
+};
+
+// ── Travel events. Each option's run() returns an outcome object:
+//    {time, panic, wit, ayuh, status, clearPanic, text, standoff} ──
+const EVENTS = [
+  {
+    weight: 3,
+    text: () => `You step on a squeaky boot sample. ${G.tourist.name} from ${G.tourist.origin} swivels like a meerkat. "Excuse me — do you WORK here?"`,
+    options: [
+      { label:'"No, sir." Walk briskly on.', run:()=>({time:4, wit:5, text:'Clean enough. He returns to the camp stove. -4 min.'}) },
+      { label:'Face him down — AYUH STANDOFF', run:()=>({standoff:true}) },
+      { label:'"Yep." (he has fourteen questions)', run:()=>({time:12, panic:4, text:'Twelve minutes of duck-boot waterproofing theory. -12 min.'}) },
+    ],
+  },
+  {
+    weight: 3,
+    text: () => `A woman with a cart stacked to the sky blocks the aisle. "Are you the night manager? Thank GOD. I have, like, forty questions about the Duck Boots."`,
+    options: [
+      { label:'"Ma\'am, I\'m a customer. God bless." Slip past.', run:()=>({time:5, wit:8, text:'You escape with your dignity. -5 min.'}) },
+      { label:'Point vaguely at sporting goods and vanish', run:()=>({time:3, wit:12, text:'Misdirection, clean. -3 min.'}) },
+      { label:'Answer one question (it becomes forty)', run:()=>({time:15, panic:6, status:'cornered', text:'You are there a long, long time. -15 min. You feel Cornered.'}) },
+    ],
+  },
+  {
+    weight: 2,
+    text: () => `A man recording a TikTok store-tour spots you. "DUDE. You HAVE to be in this. Authentic Maine Man content."`,
+    options: [
+      { label:'Walk through the shot. Say nothing.', run:()=>({time:3, wit:20, text:'Legendary. He films your back like it owes him money. -3 min.'}) },
+      { label:'"No thank you." Duck behind a canoe.', run:()=>({time:5, wit:5, text:'-5 min.'}) },
+      { label:'Get filmed (he wants to know about your knife)', run:()=>({time:13, panic:8, status:'caffeinated', text:'A small crowd gathers. -13 min. The Crowd is Caffeinated.'}) },
+    ],
+  },
+  {
+    weight: 2,
+    text: () => `A family has built a floor picnic from display gear. Dad is brewing real coffee on a display stove. "You local? Best breakfast spot? Somewhere authentic."`,
+    options: [
+      { label:'"Red\'s Eats. Wiscasset. Excuse me." Gone.', run:()=>({time:4, wit:10, text:'A correct answer, delivered and abandoned. -4 min.'}) },
+      { label:'Shrug. Walk away slowly.', run:()=>({time:6, wit:4, text:'-6 min.'}) },
+      { label:'Give the full rundown (follow-ups ensue)', run:()=>({time:13, panic:4, text:'They want parking advice too. -13 min.'}) },
+    ],
+  },
+  {
+    weight: 2,
+    text: () => `Two men in performance polos debate whether a $600 tent "justifies itself as a lifestyle investment," blocking the corridor completely.`,
+    options: [
+      { label:'"A tent is to sleep in. Good night." Part them.', run:()=>({standoff:true}) },
+      { label:'"Excuse me, boys." Push through calmly.', run:()=>({time:5, wit:5, text:'-5 min.'}) },
+      { label:'Detour through the camp-kitchen display', run:()=>({time:8, text:'The long way round. -8 min.'}) },
+    ],
+  },
+  {
+    weight: 2,
+    text: () => `A teenager drops her phone; it slides to your boot. She makes eye contact, mid-speakerphone-call about whether Bean Boots are "ironic enough."`,
+    options: [
+      { label:'Nudge it back. Eyes forward. Zero words.', run:()=>({time:0, wit:15, text:'Utter legend. No time lost.'}) },
+      { label:'Hand it back politely.', run:()=>({time:3, wit:5, text:'-3 min.'}) },
+      { label:'She decides you have "a vibe"', run:()=>({time:10, panic:4, text:'She wants your whole deal. -10 min.'}) },
+    ],
+  },
+  {
+    weight: 2,
+    text: () => `A child sits cross-legged in the aisle reading a $280 jacket's hang-tag aloud, one word at a time. "What's... Gore-Tex?"`,
+    options: [
+      { label:'"Keeps you dry." Step over. Keep going.', run:()=>({time:2, wit:10, text:'-2 min.'}) },
+      { label:'Point him to camping and move on', run:()=>({time:3, wit:5, text:'-3 min.'}) },
+      { label:'Explain fully (he has follow-ups)', run:()=>({time:10, text:'-10 min.'}) },
+    ],
+  },
+  {
+    weight: 2,
+    text: () => `A peg-rack of foil-wrapped carabiners spills across the silent tile floor. The sound is biblical. Everyone looks. Including you.`,
+    options: [
+      { label:'Keep walking. Not your doing.', run:()=>({time:2, wit:5, text:'-2 min.'}) },
+      { label:'Pick up three. Goodwill. Leave.', run:()=>({time:5, wit:12, text:'-5 min.'}) },
+      { label:'Slip on one (graceful recovery)', run:()=>({time:8, panic:5, text:'-8 min and your pride.'}) },
+    ],
+  },
+  // ── Mispronunciation events (always raise Panic) ──
+  {
+    weight: 2, panicEvent: true,
+    text: () => `A man with an open maps app stops you. "Hey — is this the way to BANG-ger?" He says it again. "BANG-ger." Your eye twitches.`,
+    options: [
+      { label:'"Bang-GOR. Rhymes with anger. North." Go.', run:()=>({time:3, wit:8, panic:6, text:'-3 min. (Panic still rose.)'}) },
+      { label:'Say nothing. Point north. Keep moving.', run:()=>({time:1, wit:5, panic:6, text:'-1 min.'}) },
+      { label:'Correct him fully (he argues Maine geography)', run:()=>({time:12, panic:14, text:'-12 min. Blood pressure: critical.'}) },
+    ],
+  },
+  {
+    weight: 2, panicEvent: true,
+    text: () => `Someone is loudly asking where "Kennebunk-PORT" is. Not Kennebunk. Not Kennebunkport. "Kennebunk-PORT." Like announcing a ship.`,
+    options: [
+      { label:'"South. Off 95." Done.', run:()=>({time:3, wit:8, panic:6, text:'-3 min.'}) },
+      { label:'Walk past like a ghost.', run:()=>({time:1, wit:10, panic:6, text:'-1 min.'}) },
+      { label:'Correct the pronunciation (they don\'t hear it)', run:()=>({time:10, panic:14, status:'cornered', text:'-10 min. You feel Cornered.'}) },
+    ],
+  },
 ];
 
 // ═══════════════════════════════════════════════
@@ -916,1177 +1192,594 @@ const TOURISTS = [
 // ═══════════════════════════════════════════════
 let G = {};
 
-function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-function initGame() {
-  // Randomize which section holds Moxie (0, 1, or 3) and Maple (2 or 3)
-  const moxieSection = pick([0, 1, 3]);
-  const mapleSection = pick([2, 3]);
-
-  G = {
-    time: 60,
-    wit: 40,
-    stealth: false,
-    hasMoxie: false,
-    hasMaple: false,
-    hasLifesavers: true,
-    hasKnife: true,
-    hasFlannel: false,
-    hasBoots: false,
-    section: 0,
-    sectionsVisited: new Set(),
-    gameOver: false,
-    won: false,
-    moxieFound: false,
-    mapleFound: false,
-    flannelFound: false,
-    turnsInSection: 0,
-    encounterActive: false,
-    panic: 0,
-    ayuhCharges: 4,
-    mooseHiding: false,
-    moxieSection,
-    mapleSection,
-    // Pick random flavor variant for each section at game start
-    sectionFlavor: [pick([0,1,2]), pick([0,1,2]), pick([0,1,2]), pick([0,1,2]), pick([0,1,2])],
-    // Shuffle encounter pool for this run
-    shuffledEncounters: shuffle([...ENCOUNTERS]),
-    encounterIndex: 0,
-    // Random tourist details
-    tourist: pick(TOURISTS),
+function assignItems(){
+  return {
+    moxie:   pick(['camp','pond','flannel']),
+    maple:   pick(['camp','boots']),
+    // flannel (the chamois shirt) always lives at the flannel racks
   };
-
-  document.getElementById('end-screen').classList.remove('show');
-  renderStats();
-  renderInventory();
-  updateSectionNodes();
-  goToSection(0, true);
 }
 
-// ═══════════════════════════════════════════════
-//  SECTIONS
-// ═══════════════════════════════════════════════
-
-// Section flavor variant pools — picked once per run via G.sectionFlavor
-const SECTION_FLAVORS = [
-  // 0 — Camping Gear (3 variants)
-  [
-    (t) => `You claw your way out of a Mountainsmith base-camp display tent. A foam sleeping pad sticker is stuck to your cheek. The Camping Gear section stretches out before you — a cathedral of Gore-Tex in the dark. Headlamps hang like sleeping bats. The faint smell of DEET and ambition hangs in the air.
-
-Ida is outside in the Brat. The engine's been idling since midnight. You can almost hear her tapping the steering wheel.
-
-You peek around a tent pole. A man in a Harvard Lampoon sweatshirt is squinting at a $340 camp stove like it owes him money.`,
-    (t) => `You unzip the display tent from the inside like a man being born again, into a store, at 2 AM, wearing yesterday's clothes. A price tag from a sleeping bag liner is stuck to your ear.
-
-The Camping Gear section hums with the quiet desperation of fluorescent emergency lighting. Somewhere a Bluetooth speaker is softly playing Mumford & Sons. Nobody chose this.
-
-${t.name} from ${t.origin} is standing nearby, holding ${t.item}. He ${t.quirk}. You have met a thousand of him.`,
-    (t) => `The tent collapses as you exit it sideways, taking a display lantern with you. It bounces once and goes dark. Nobody notices. The Camping Gear section is its own ecosystem at 2 AM — self-contained, odorous, humming with the sound of people who have never camped buying camping equipment.
-
-A man near the stove display is comparing two camp chairs on his phone. His wife is asleep in one of them. She has the right idea.
-
-Ida is in the parking lot. The Brat's exhaust mixes with the pine-scented air freshener pumped through the store vents. Time is short.`,
-  ],
-  // 1 — Trout Pond (3 variants)
-  [
-    (t) => `You push past a rack of quick-dry fishing vests and nearly walk into L.L. Bean's famous indoor Trout Pond. The water is perfectly still. A taxidermied brook trout eyes you with quiet judgment. There's a display canoe you could hide behind.
-
-To your left: the Boot Section. To your right: a couple from Hoboken is photographing themselves with the pond. She has a ring light. He is wearing Crocs at 2 AM in Maine.`,
-    (t) => `The Trout Pond glows a soft green in the emergency lighting. Its stillness is complete. A taxidermied landlocked salmon on the far wall stares at you with the serene indifference of something that has already solved all its problems.
-
-${t.name} from ${t.origin} is crouched at the pond's edge, photographing his own reflection. He ${t.quirk}. He does not notice you. The Boot Section is to your left.`,
-    (t) => `You come around the corner and stop. The Trout Pond. You've fished actual ponds less peaceful than this one. The ambient sound system is playing something vaguely resembling a brook. It is almost calming.
-
-Almost.
-
-A family of four from New York has set up what appears to be a light picnic on the bench beside the pond. They have trail mix. The children are awake. It is 2:17 AM. Everyone is making choices tonight.`,
-  ],
-  // 2 — Boot Section (3 variants)
-  [
-    (t) => `You're in the Boot Section. The smell hits you first — leather and rubber and a hundred years of Yankee pragmatism. Rows of Bean Boots gleam under the emergency lighting like small, sensible gods.
-
-Your size is right there on the third shelf. 10.5 Wide. Just like you called in last Tuesday.
-
-Between you and those boots: ${t.name} from ${t.origin}, wearing ${t.item}. He is asking a floor associate named Kayla if the moc-toe comes in "slate blue." Kayla looks like she has left her body.`,
-    (t) => `The Boot Section. You almost cry a little. Not from emotion — from the smell. Leather, rubber, neatsfoot oil. The honest smell of footwear built to last thirty years in conditions that would end a lesser boot.
-
-Your boots are on the third shelf. Right there.
-
-${t.name} from ${t.origin} is between you and them. He ${t.quirk}. He is holding four boot boxes and appears to be in a genuine philosophical crisis about waterproofing.`,
-    (t) => `You come up the stairs into the Boot Section and breathe it in. Six generations of Maine craftsmanship, on shelves, under emergency lighting, at 2:19 AM. Your boots are here. You can see them.
-
-A man in a performance polo is asking whether the Bean Boot "reads as ironic or sincere in a Brooklyn context." The associate he's asking — her name tag says KAYLA — has the thousand-yard stare of someone who clocked in at 11 PM and is running on gas station coffee.
-
-This is going to require a plan.`,
-  ],
-  // 3 — Flannel Racks (3 variants)
-  [
-    (t) => `The Flannel Racks section — a warm, plaid wilderness of 100% cotton in every combination of red, green, and the deep forest dignity of a man who heats with wood.${G.hasFlannel ? '\n\nYour chamois shirt is doing its work. You move quieter. You belong here.' : '\n\nA Buffer Green chamois shirt in your exact size hangs at eye level. It is calling to you by name.'}
-
-Two women from the Upper West Side are debating "rustic" versus "cottagecore." One is filming. The other is holding seventeen items and seems to be dissociating.`,
-    (t) => `Plaid. Plaid everywhere. Red plaid, green plaid, the dignified navy-and-cream of a man who has his own woodpile. The Flannel Racks are a forest of right decisions.${G.hasFlannel ? '\n\nWith the chamois shirt on, you are indistinguishable from the merchandise. This is a compliment.' : '\n\nThere is a chamois shirt in your size. Buffer Green. It is $89. You know it would last you twenty years.'}
-
-${t.name} from ${t.origin} is somewhere nearby with ${t.item}. You can hear him. You do not look directly at him.`,
-    (t) => `You move through the Flannel Racks like a man who knows what flannel is for. Around you, the merchandise hangs in patient rows. Cotton. Real cotton. None of this moisture-wicking technical fabric nonsense.${G.hasFlannel ? '\n\nThe chamois shirt has made you invisible. You are part of the display. You are Maine.' : '\n\nA chamois shirt. Buffer Green, XL. Right there. You could put it on right now.'}
-
-A man is telling his wife that he needs "at least three flannels" because "I'm really committing to the lifestyle." His wife is nodding with the expression of someone who has heard this before.`,
-  ],
-  // 4 — Exit Vestibule (3 variants)
-  [
-    (t) => `You can see it. The famous L.L. Bean Boot statue outside. The parking lot. Ida's Brat, engine idling, exhaust fog drifting in the cold Maine air.
-
-The Exit Vestibule. Twenty feet of revolving door glory stand between you and freedom.
-
-A man in khaki shorts — despite it being 48 degrees — is asking the door greeter about the return policy. His wife is taking notes on her phone. They are from New Jersey. This is evident without asking.`,
-    (t) => `The door. You can see the door. Through the glass you can see the parking lot, the Boot statue, and the faint shape of the Brat with its running lights on. Ida is in there. She has been in there for two hours. She will say nothing about this. That is worse.
-
-${t.name} from ${t.origin} is blocking the vestibule with ${t.item}. He is explaining something to the door greeter. The door greeter has heard everything.`,
-    (t) => `Twenty feet. That's all that stands between you and the parking lot, the Brat, Ida, and a reasonable chance at morning fishing. Twenty feet of exit vestibule, one revolving door, and whatever ${t.name} from ${t.origin} is currently discussing with the overnight staff.
-
-He ${t.quirk}. At 2 AM. In a vestibule. In Maine.
-
-The Brat's exhaust drifts past the window like a signal fire.`,
-  ],
-];
-
-const SECTIONS = [
-  {
-    id: 0,
-    name: 'CAMPING GEAR',
-    entryText: () => {
-      const base = SECTION_FLAVORS[0][G.sectionFlavor[0]](G.tourist);
-      const moxieHint = G.moxieSection === 0 && !G.moxieFound ? '\n\nA lone can of Moxie sits on a display shelf nearby. Someone left it behind.' : '';
-      return base + moxieHint;
-    },
-    choices: () => [
-      { text: 'Hug the wall toward the Trout Pond display', action: () => moveToSection(1) },
-      { text: 'Grab a headlamp from the rack (sneak past tourist)', action: () => sneakAction() },
-      G.hasLifesavers ? { text: 'Offer Lifesavers to distract the tourist', action: () => lifeAction() } : null,
-      G.moxieSection === 0 && !G.moxieFound ? { text: 'Grab that Moxie off the shelf', action: () => grabMoxie() } : null,
-      G.hasMoxie ? { text: 'Drink the Moxie now (-Panic, +Time, +Wit)', action: () => drinkMoxie() } : null,
-    ].filter(Boolean),
-  },
-  {
-    id: 1,
-    name: 'TROUT POND',
-    entryText: () => {
-      const base = SECTION_FLAVORS[1][G.sectionFlavor[1]](G.tourist);
-      const moxieHint = G.moxieSection === 1 && !G.moxieFound ? '\n\nA can of Moxie sits on the bench by the pond. An offering from a prior visitor.' : '';
-      return base + moxieHint;
-    },
-    choices: () => [
-      { text: 'Creep past toward the Boot Section', action: () => moveToSection(2) },
-      G.moxieSection === 1 && !G.moxieFound ? { text: 'Grab that Moxie off the bench', action: () => grabMoxie() } : null,
-      G.hasMoxie ? { text: 'Drink the Moxie now (-Panic, +Time, +Wit)', action: () => drinkMoxie() } : null,
-      { text: 'Stand perfectly still beside the taxidermy moose', action: () => standByMoose() },
-      { text: 'Hide in the display canoe and wait for them to leave', action: () => waitInCanoe() },
-      { text: 'Mutter "Good evening" and walk through like you own the place', action: () => ownerWalk() },
-    ].filter(Boolean),
-  },
-  {
-    id: 2,
-    name: 'BOOT SECTION',
-    entryText: () => {
-      const base = SECTION_FLAVORS[2][G.sectionFlavor[2]](G.tourist);
-      const mapleHint = G.mapleSection === 2 && !G.mapleFound ? '\n\nA jar of Stonewall Kitchen maple syrup sits in the gift display nearby. Potentially useful.' : '';
-      return base + mapleHint;
-    },
-    choices: () => [
-      G.hasMaple ? { text: 'Leave the Maple Syrup as a trail distraction', action: () => mapleDistract() } : null,
-      { text: `Deploy a withering "Ayuh" and shoulder past`, action: () => deployWit('Boot Section') },
-      { text: 'Ask Kayla a complicated question in the opposite direction', action: () => distractKayla() },
-      G.mapleSection === 2 && !G.mapleFound ? { text: 'Grab that jar of maple syrup from the gift display', action: () => grabMaple() } : null,
-      G.hasBoots ? { text: '[Boots in hand] — Head to Flannel Racks', action: () => moveToSection(3) } : null,
-    ].filter(Boolean),
-  },
-  {
-    id: 3,
-    name: 'FLANNEL RACKS',
-    entryText: () => {
-      const base = SECTION_FLAVORS[3][G.sectionFlavor[3]](G.tourist);
-      const moxieHint = G.moxieSection === 3 && !G.moxieFound ? '\n\nA warm can of Moxie sits on a low shelf between two flannel shirts, like it belongs there.' : '';
-      const mapleHint = G.mapleSection === 3 && !G.mapleFound ? '\n\nA jar of Maine maple syrup is tucked into the gift end-cap. Somebody\'s forgotten souvenir.' : '';
-      return base + moxieHint + mapleHint;
-    },
-    choices: () => [
-      !G.flannelFound ? { text: 'Grab that chamois shirt — put it on for stealth', action: () => grabFlannel() } : null,
-      G.hasFlannel ? { text: '[Stealth active] Glide past like a native — head to Exit', action: () => moveToSection(4, true) } : null,
-      { text: 'Navigate through the racks toward the Exit Vestibule', action: () => moveToSection(4) },
-      G.hasLifesavers ? { text: 'Drop Lifesavers on the floor as a crinkly distraction', action: () => dropLifesavers() } : null,
-      { text: 'Nod gravely and say "Wicked good choice" — they\'re confused, you\'re gone', action: () => deployWit('Flannel Racks') },
-      G.moxieSection === 3 && !G.moxieFound ? { text: 'Grab that Moxie off the shelf', action: () => grabMoxie() } : null,
-      G.hasMoxie ? { text: 'Drink the Moxie now (-Panic, +Time, +Wit)', action: () => drinkMoxie() } : null,
-      G.mapleSection === 3 && !G.mapleFound ? { text: 'Grab the maple syrup from the end-cap', action: () => grabMaple() } : null,
-      G.hasMaple ? { text: 'Leave the Maple Syrup as a trail distraction', action: () => mapleDistract() } : null,
-    ].filter(Boolean),
-  },
-  {
-    id: 4,
-    name: 'EXIT VESTIBULE',
-    entryText: () => SECTION_FLAVORS[4][G.sectionFlavor[4]](G.tourist),
-    choices: () => [
-      G.hasBoots ? { text: 'Make your move — stride through with purpose', action: () => finalEscape() } : { text: 'You need boots first! Head back to the Boot Section.', action: () => goToSection(2) },
-      { text: 'Deploy maximum Dry Wit: "Store closes at never. Good luck." Exit.', action: () => deployWit('Exit') },
-      G.hasMaple ? { text: 'Leave the maple syrup on the bench — the Jerseyites investigate', action: () => finalMaple() } : null,
-    ].filter(Boolean),
-  },
-];
-
-// ═══════════════════════════════════════════════
-//  ENCOUNTERS (random pop-up events)
-// ═══════════════════════════════════════════════
-const ENCOUNTERS = [
-  {
-    text: `You step on a squeaky boot sample in the aisle.
-
-A tourist from Connecticut — cargo shorts, Nantucket Red hat — swivels his head like a meerkat. He has spotted you.
-
-"Excuse me, do you WORK here?"`,
-    options: [
-      { text: 'Say "No, sir" and walk briskly', timeCost: 5, witGain: 5, desc: '-5 min' },
-      { text: 'Deploy Ayuh: stare blankly, nod once, keep moving', timeCost: 0, witGain: 15, desc: 'Wit test', isWitTest: true, witThreshold: 50 },
-      { text: 'Say "Yep" and let him ask his question', timeCost: 12, witGain: 0, desc: '-12 min (he has 14 questions)' },
-    ],
-  },
-  {
-    text: `A woman in L.L. Bean's finest puffer vest rolls up with a cart absolutely stacked with merchandise. She looks at you.
-
-"OH! Are you the night manager? Thank GOD. I have some questions about the Duck Boots. Like, at least forty."`,
-    options: [
-      { text: '"Ma\'am, I am a customer. God bless." Keep moving.', timeCost: 5, witGain: 10, desc: '-5 min' },
-      { text: 'Point vaguely toward sporting goods and disappear', timeCost: 3, witGain: 15, desc: '-3 min' },
-      { text: 'Answer one question — it becomes forty', timeCost: 15, witGain: -5, desc: '-15 min 💀' },
-    ],
-  },
-  {
-    text: `You round a corner and nearly collide with a man recording a TikTok tour of the store. Ring light. Gimbal. The whole apparatus.
-
-"Dude, you HAVE to be in this. It'll go viral. This is AUTHENTIC Maine Man content."`,
-    options: [
-      { text: 'Walk through the shot. Say nothing.', timeCost: 3, witGain: 20, desc: '-3 min (legendary)' },
-      { text: '"No thank you." Duck behind a canoe rack.', timeCost: 5, witGain: 5, desc: '-5 min' },
-      { text: 'Get filmed. They want to know about your knife.', timeCost: 13, witGain: -10, desc: '-13 min 🎥' },
-    ],
-  },
-  {
-    text: `A family of five has constructed a picnic on the floor of the camping section using L.L. Bean display gear. Dad is brewing actual coffee on a display camp stove. He spots you.
-
-"Hey! You local? What's the best breakfast spot? We need something authentic. No chains."`,
-    options: [
-      { text: '"Red\'s Eats. Wiscasset. Now if you\'ll excuse me."', timeCost: 4, witGain: 10, desc: '-4 min' },
-      { text: 'Shrug. Walk away slowly.', timeCost: 6, witGain: 5, desc: '-6 min' },
-      { text: 'Give them the full rundown — they have follow-up questions', timeCost: 14, witGain: -5, desc: '-14 min 🥐' },
-    ],
-  },
-  {
-    text: `A teenager from suburban Boston is trying on Bean Boots while talking loudly on speakerphone about whether the boots are "ironic enough."
-
-She drops her phone, which slides across the floor and stops at your foot. You make eye contact.`,
-    options: [
-      { text: 'Hand phone back. Nod once. Keep moving.', timeCost: 3, witGain: 5, desc: '-3 min' },
-      { text: 'Kick phone gently back, eyes forward, zero acknowledgment', timeCost: 0, witGain: 15, desc: 'Utter legend' },
-      { text: 'She now thinks you\'re interesting and wants your "vibe"', timeCost: 10, witGain: -5, desc: '-10 min 📱' },
-    ],
-  },
-  {
-    text: `Two men in Vineyard Vines performance polos are standing in the middle of the aisle debating whether a $600 tent "justifies itself as a lifestyle investment."
-
-They are blocking the entire corridor. Completely. On both sides.`,
-    options: [
-      { text: '"Excuse me, boys." Push through calmly.', timeCost: 5, witGain: 5, desc: '-5 min' },
-      { text: '"A tent is to sleep in. Good night." Part them like a sea.', timeCost: 2, witGain: 20, desc: '-2 min (Wit check)', isWitTest: true, witThreshold: 55 },
-      { text: 'Find alternate route through the camping kitchen display', timeCost: 8, witGain: 0, desc: '-8 min' },
-    ],
-  },
-  // ── Additional standard encounters ──
-  {
-    text: `A woman is methodically removing every item from a display kayak and placing them on the floor to "see what storage capacity really looks like in practice."
-
-She has created a ten-foot exclusion zone around herself. You need to cross it.`,
-    options: [
-      { text: 'Step over the gear calmly. Make no comment.', timeCost: 3, witGain: 8, desc: '-3 min' },
-      { text: 'Help her put one item back — then disappear while she\'s grateful', timeCost: 5, witGain: 12, desc: '-5 min' },
-      { text: 'She asks your opinion on dry bag sizing', timeCost: 13, witGain: -5, desc: '-13 min 🛶' },
-    ],
-  },
-  {
-    text: `A man is on speakerphone with someone named "Gunnar" debating whether L.L. Bean gear is "ironic prep" or "sincere prep."
-
-He is walking slowly. In your exact direction. At your exact pace. You have been matched.`,
-    options: [
-      { text: 'Accelerate. Leave him behind. Say nothing.', timeCost: 2, witGain: 5, desc: '-2 min' },
-      { text: 'Veer into a side aisle. Let him pass.', timeCost: 4, witGain: 3, desc: '-4 min' },
-      { text: 'He notices you. "Hey, you look local — what do YOU think?"', timeCost: 11, witGain: -5, desc: '-11 min 📞' },
-    ],
-  },
-  {
-    text: `Someone has set up a tripod in the middle of the aisle to photograph a display of camp cookware.
-
-The shot requires absolute stillness in a ten-foot radius. She is waiting. You are in frame.`,
-    options: [
-      { text: 'Walk through the shot without breaking stride.', timeCost: 0, witGain: 15, desc: 'Legendary. 0 min.', isWitTest: true, witThreshold: 45 },
-      { text: 'Wait patiently for the shot. Cost: your time.', timeCost: 7, witGain: 0, desc: '-7 min' },
-      { text: 'Go around through the sleeping bag display', timeCost: 5, witGain: 3, desc: '-5 min' },
-    ],
-  },
-  {
-    text: `A child — maybe seven — is sitting cross-legged on the floor blocking an aisle, reading the entire hang tag on a $280 jacket, one word at a time.
-
-His parents are nowhere visible. He looks up at you.
-
-"What's Gore-Tex?"`,
-    options: [
-      { text: '"Keeps you dry." Step over him. Keep walking.', timeCost: 2, witGain: 10, desc: '-2 min' },
-      { text: 'Give the full explanation. He has follow-up questions.', timeCost: 10, witGain: -3, desc: '-10 min 🧒' },
-      { text: 'Point him toward the camping section and walk away', timeCost: 3, witGain: 5, desc: '-3 min' },
-    ],
-  },
-  {
-    text: `You find a shopping cart blocking a narrow passage. It is full of merchandise — at least $1,400 worth by your estimate — but there is no human attached to it.
-
-Someone has abandoned this cart and will be back. Or won't. Either way, it's in your way.`,
-    options: [
-      { text: 'Move it two feet. It\'s a cart. You\'re allowed.', timeCost: 1, witGain: 5, desc: '-1 min' },
-      { text: 'Squeeze past without touching it', timeCost: 4, witGain: 3, desc: '-4 min (tight fit)' },
-      { text: 'Owner returns as you move it. Lengthy apology exchange.', timeCost: 9, witGain: -3, desc: '-9 min 🛒' },
-    ],
-  },
-  {
-    text: `An older gentleman from what you guess is Westchester — madras shirt, reading glasses on a Croakie — stops you with the confidence of a man who has never doubted himself.
-
-"Young man. Where are the wool socks? The good ones. Not the blends."`,
-    options: [
-      { text: '"Third rack past the boots." You know this store.', timeCost: 2, witGain: 8, desc: '-2 min (you helped a good man)' },
-      { text: '"Sorry, don\'t work here." Move on.', timeCost: 3, witGain: 3, desc: '-3 min' },
-      { text: 'Walk him over. He also wants boot advice.', timeCost: 12, witGain: -2, desc: '-12 min 🧦' },
-    ],
-  },
-  {
-    text: `A couple is having a quiet but intense argument about a $450 tent. One of them wants it. The other is calculating whether they "even go camping enough to justify it."
-
-They are in the exact center of the aisle. The argument has been going on for a while. You can tell.`,
-    options: [
-      { text: 'Slip past during a pause in the argument.', timeCost: 3, witGain: 5, desc: '-3 min' },
-      { text: 'Say "Get the tent" firmly and keep walking.', timeCost: 1, witGain: 15, desc: '-1 min', isWitTest: true, witThreshold: 40 },
-      { text: 'They ask your opinion. You are now a mediator.', timeCost: 14, witGain: -5, desc: '-14 min ⛺' },
-    ],
-  },
-  {
-    text: `A man is trying on every size of the same boot, methodically, leaving the tissue paper on the floor each time. The floor associate, Marcus, looks like he has made peace with his situation.
-
-You need to get through to the next aisle. Marcus is in your way. He gives you a look.`,
-    options: [
-      { text: 'Give Marcus the nod. He parts like the sea.', timeCost: 2, witGain: 10, desc: '-2 min (solidarity)' },
-      { text: 'Go around through the boot care display', timeCost: 5, witGain: 3, desc: '-5 min' },
-      { text: 'Man asks your opinion on half-sizing. Marcus grateful for backup.', timeCost: 10, witGain: 5, desc: '-10 min, +Wit' },
-    ],
-  },
-  {
-    text: `Someone has knocked over an entire peg rack of carabiners. Individually foil-wrapped carabiners, all rolling in every direction across a tile floor, at 2 AM, in a largely silent store.
-
-The sound is extraordinary. Everyone looks. Including you.`,
-    options: [
-      { text: 'Walk past. You did not do this. It is not your problem.', timeCost: 2, witGain: 5, desc: '-2 min' },
-      { text: 'Help pick up three carabiners. Goodwill purchase. Leave.', timeCost: 5, witGain: 12, desc: '-5 min' },
-      { text: 'Slip on a carabiner. Graceful recovery, but it cost you.', timeCost: 8, witGain: -5, desc: '-8 min 🪝' },
-    ],
-  },
-  {
-    text: `A man is giving his wife a comprehensive review of every sleeping bag in the aisle, reading aloud from his phone while she stares into the middle distance. He has been doing this for a while. She left this conversation twenty minutes ago, mentally.
-
-He turns to you. "Do you know what EN 13537 temperature ratings actually mean?"`,
-    options: [
-      { text: '"Lower number, colder you can sleep. Goodnight."', timeCost: 2, witGain: 8, desc: '-2 min' },
-      { text: 'Shrug. Gesture vaguely. Walk away.', timeCost: 3, witGain: 3, desc: '-3 min' },
-      { text: 'You actually know. You explain. He has spreadsheets.', timeCost: 15, witGain: 3, desc: '-15 min 🛌' },
-    ],
-  },
-  {
-    text: `A woman with a large tote bag is photographing price tags and sending them somewhere — her husband, presumably — with audible texting sounds.
-
-She steps backward directly into your path without looking.`,
-    options: [
-      { text: '"Excuse me." Side-step. Continue.', timeCost: 2, witGain: 5, desc: '-2 min' },
-      { text: 'Stop short. Let her finish. Wait.', timeCost: 6, witGain: 0, desc: '-6 min' },
-      { text: 'She turns around startled, drops the phone. Now you\'re involved.', timeCost: 9, witGain: -3, desc: '-9 min 📲' },
-    ],
-  },
-  {
-    text: `You round a corner and encounter a man sitting IN a display Adirondack chair, fully reclined, eyes closed. He is either asleep or meditating. A La Croix is balanced on his knee.
-
-He is directly between you and where you need to go. He opens one eye.
-
-"This chair is incredible. Are you buying one?"`,
-    options: [
-      { text: '"No." Keep moving.', timeCost: 1, witGain: 8, desc: '-1 min' },
-      { text: 'Pause, look at the chair, nod once in genuine agreement. Leave.', timeCost: 3, witGain: 10, desc: '-3 min (honest)' },
-      { text: 'He wants to tell you about his back problems.', timeCost: 12, witGain: -3, desc: '-12 min 🪑' },
-    ],
-  },
-
-  // ── Mispronunciation encounters (raise Panic) ──
-  {
-    text: `A man in a Patagonia quarter-zip stops you with an open maps app.
-
-"Hey — is this the way to BANG-ger?"
-
-He says it again. "BANG-ger." Like it rhymes with "hanger." Your left eye twitches.`,
-    isMispronunciation: true,
-    panicRaise: 20,
-    options: [
-      { text: '"Bang-GOR. It rhymes with anger. Head north." Walk away.', timeCost: 3, witGain: 8, desc: '-3 min, +Wit' },
-      { text: 'Say nothing. Point north. Keep moving.', timeCost: 1, witGain: 5, desc: '-1 min' },
-      { text: 'Correct him fully. He argues. You explain Maine geography.', timeCost: 12, witGain: -5, desc: '-12 min 🗺️' },
-    ],
-  },
-  {
-    text: `A woman is on the phone, loudly, three feet away.
-
-"We're in FREE-port! Yeah, FREE-port Maine... what? No it's not near PORT-land, it's... well, it's sort of near Port-LAND but..."
-
-She turns to you. "Is Freeport near Portland?"`,
-    isMispronunciation: true,
-    panicRaise: 15,
-    options: [
-      { text: '"Twenty minutes. South on 295." Turn and leave.', timeCost: 2, witGain: 5, desc: '-2 min' },
-      { text: 'Deploy Ayuh charge — single nod toward the highway, gone.', timeCost: 0, witGain: 10, desc: 'Uses 1 Ayuh pip', isAyuhSpend: true },
-      { text: 'Explain Maine geography. She has many more questions.', timeCost: 11, witGain: -5, desc: '-11 min 📍' },
-    ],
-  },
-  {
-    text: `A man asks a store associate where to find "MOX-ee."
-
-"You know — MOX-ee? The soda? We had it at home when I was a kid. MOX-ee."
-
-He is saying it fine. You don't know why this bothers you. It just does. Everything tonight bothers you.
-
-Your panic rises for no reason you can fully articulate. It is 2 AM.`,
-    isMispronunciation: true,
-    panicRaise: 10,
-    options: [
-      { text: 'Breathe deeply. This is fine. Keep moving.', timeCost: 2, witGain: 5, desc: '-2 min, -Panic' },
-      G.hasMoxie ? { text: 'Drink YOUR Moxie right now. Claim it.', timeCost: 0, witGain: 10, desc: 'Use Moxie item', isMoxieDrink: true } : null,
-      { text: 'Lean against a rack and collect yourself', timeCost: 6, witGain: 0, desc: '-6 min' },
-    ].filter(Boolean),
-  },
-  {
-    text: `Someone ahead of you is asking where "Kennebunk-PORT" is.
-
-Not Kennebunk. Not Kennebunkport. "Kennebunk-PORT." Like they're announcing a ship.
-
-"Is Kennebunk-PORT near here? We want to see where the Bushes lived."`,
-    isMispronunciation: true,
-    panicRaise: 18,
-    options: [
-      { text: '"South. Forty-five minutes. Off 95." Done.', timeCost: 3, witGain: 8, desc: '-3 min' },
-      { text: 'Say nothing and walk past them like a ghost.', timeCost: 1, witGain: 10, desc: '-1 min' },
-      { text: 'Correct the pronunciation. They don\'t hear it. Repeat.', timeCost: 10, witGain: -8, desc: '-10 min 🗣️' },
-    ],
-  },
-];
-
-// ═══════════════════════════════════════════════
-//  CORE DISPLAY
-// ═══════════════════════════════════════════════
-function setText(txt) {
-  document.getElementById('narrative-text').textContent = txt;
-  document.getElementById('narrative-box').scrollTop = 0;
+function initGame(){
+  G = {
+    time: 60, wit: 40, panic: 0, ayuh: 4,
+    hasMoxie:false, hasMaple:false, hasFlannel:false, hasLifesavers:true, hasKnife:true, hasBoots:false,
+    leg: 0,            // landmark index you're currently AT
+    segLeft: 0,        // travel segments remaining to next landmark
+    segTotal: 0,
+    traveling: false,
+    status: {},        // id -> turns remaining
+    tourist: pick(TOURISTS),
+    itemAt: assignItems(),
+    pickedUp: {},      // landmark id -> true once its item grabbed
+    eventDeck: shuffle(EVENTS.slice()),
+    eventIdx: 0,
+    gameOver:false, won:false,
+  };
+  hideEndScreen();
+  renderAll();
+  arriveLandmark(0, true);
 }
 
-function setChoices(choices) {
-  const box = document.getElementById('choices-box');
-  box.innerHTML = '';
-  choices.forEach(c => {
-    if (!c) return;
-    const btn = document.createElement('button');
-    btn.className = 'choice-btn';
-    btn.textContent = c.text;
-    btn.onclick = c.action;
-    box.appendChild(btn);
-  });
+// ── Status helpers ──
+function hasStatus(id){ return (G.status[id] || 0) > 0; }
+function addStatus(id){ G.status[id] = STATUS_DEFS[id] ? STATUS_DEFS[id].turns : 3; }
+function tickStatus(){
+  for (const id in G.status){ if (id !== 'camo'){ G.status[id]--; if (G.status[id] <= 0) delete G.status[id]; } }
 }
 
-function renderStats() {
+// ── Resource helpers ──
+function spendTime(m){ G.time = clamp(G.time - m, 0, 99); renderStats(); if (G.time <= 0 && !G.gameOver) triggerLoss(); }
+function gainTime(m){ G.time = clamp(G.time + m, 0, 99); renderStats(); }
+function adjustWit(d){ G.wit = clamp(G.wit + d, 0, 100); }
+function adjustPanic(d){ G.panic = clamp(G.panic + d, 0, 100); }
+function panicPenalty(){ return G.panic >= 70 ? 20 : G.panic >= 40 ? 10 : 0; }
+
+// ═══════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════
+function renderAll(){ renderStats(); renderInventory(); }
+
+function renderStats(){
   const tv = document.getElementById('time-display');
-  const tbi = document.getElementById('time-bar-inner');
-  const wbi = document.getElementById('wit-bar-inner');
-  const wd  = document.getElementById('wit-display');
-  const sd  = document.getElementById('stealth-display');
-  const bd  = document.getElementById('boots-display');
-  const pd  = document.getElementById('panic-display');
-  const pbi = document.getElementById('panic-bar-inner');
-
   tv.textContent = G.time + ' MIN';
   tv.className = 'stat-value' + (G.time <= 15 ? ' danger' : G.time <= 30 ? ' warning' : '');
-
+  const tbi = document.getElementById('time-bar-inner');
   tbi.style.width = Math.max(0, (G.time / 60) * 100) + '%';
   tbi.style.background = G.time <= 15 ? 'var(--red)' : G.time <= 30 ? 'var(--amber)' : 'var(--green)';
 
-  // Panic bar
-  const panicPct = Math.min(100, G.panic);
-  pbi.style.width = panicPct + '%';
+  document.getElementById('wit-bar-inner').style.width = G.wit + '%';
+  document.getElementById('wit-display').textContent = G.wit;
+
+  const pd = document.getElementById('panic-display');
+  document.getElementById('panic-bar-inner').style.width = Math.min(100, G.panic) + '%';
   pd.textContent = G.panic;
   pd.style.color = G.panic >= 80 ? 'var(--red)' : G.panic >= 50 ? 'var(--amber)' : 'var(--green-dim)';
-  if (G.panic >= 80) pd.style.animation = 'pulse-red 1s infinite';
-  else pd.style.animation = 'none';
+  pd.style.animation = G.panic >= 80 ? 'pulse-red 1s infinite' : 'none';
 
-  // Ayuh pips
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 4; i++){
     const pip = document.getElementById('ayuh-' + i);
-    if (pip) pip.className = 'ayuh-pip' + (i < G.ayuhCharges ? '' : ' empty');
+    if (pip) pip.className = 'ayuh-pip' + (i < G.ayuh ? '' : ' empty');
   }
 
-  wbi.style.width = G.wit + '%';
-  wd.textContent = G.wit;
+  const sd = document.getElementById('stealth-display');
+  sd.textContent = hasStatus('camo') ? 'FLANNEL' : 'BASE';
+  sd.style.color = hasStatus('camo') ? 'var(--amber)' : 'var(--green)';
 
-  sd.textContent = G.stealth ? '+20% FLANNEL' : 'BASE';
-  sd.className = 'stat-value' + (G.stealth ? ' highlight' : '');
-
-  bd.textContent = G.hasBoots ? 'GOT \'EM ✓' : 'NOT YET';
-  bd.className = 'stat-value' + (G.hasBoots ? '' : '');
+  const bd = document.getElementById('boots-display');
+  bd.textContent = G.hasBoots ? "GOT 'EM ✓" : 'NEED';
+  bd.style.color = G.hasBoots ? 'var(--green)' : 'var(--amber)';
 }
 
-function renderInventory() {
+function renderInventory(){
   const items = [];
-  if (G.hasKnife)     items.push({ label: '🔪 Dull Pocket Knife', hl: false });
-  if (G.hasLifesavers)items.push({ label: '🍬 Wintergreen Lifesavers', hl: false });
-  if (G.hasMoxie)     items.push({ label: '🥤 Moxie (+15 min ready)', hl: true });
-  if (G.hasMaple)     items.push({ label: '🍁 Maple Syrup (distraction)', hl: true });
-  if (G.hasFlannel)   items.push({ label: '🟫 Chamois Flannel Shirt (+Stealth)', hl: true });
-  if (G.hasBoots)     items.push({ label: '👢 Bean Boots (10.5W)', hl: true });
+  if (G.hasKnife)      items.push(['🔪 Dull Pocket Knife', false]);
+  if (G.hasLifesavers) items.push(['🍬 Wintergreen Lifesavers', false]);
+  if (G.hasMoxie)      items.push(['🥤 Moxie', true]);
+  if (G.hasMaple)      items.push(['🍁 Maple Syrup', true]);
+  if (G.hasFlannel)    items.push(['🟫 Chamois Flannel', true]);
+  if (G.hasBoots)      items.push(['👢 Bean Boots 10.5W', true]);
 
-  const box = document.getElementById('inv-items');
-  box.innerHTML = items.map(i =>
-    `<span class="inv-item${i.hl ? ' highlight' : ''}">${i.label}</span>`
-  ).join('');
+  let html = items.map(i => '<span class="inv-item' + (i[1] ? ' highlight' : '') + '">' + i[0] + '</span>').join('');
+  for (const id in G.status){
+    if (id === 'camo') continue;
+    html += '<span class="status-chip">' + STATUS_DEFS[id].label + ' (' + G.status[id] + ')</span>';
+  }
+  document.getElementById('inv-items').innerHTML = html;
 }
 
-function updateSectionNodes() {
-  for (let i = 0; i < 5; i++) {
+function updateTrail(active){
+  for (let i = 0; i < 5; i++){
     const el = document.getElementById('sn-' + i);
-    if (i < G.section)      el.className = 'section-node done';
-    else if (i === G.section) el.className = 'section-node active';
-    else                     el.className = 'section-node future';
+    if (!el) continue;
+    el.className = 'section-node ' + (i < active ? 'done' : i === active ? 'active' : 'future');
   }
 }
 
-// ═══════════════════════════════════════════════
-//  SECTION NAVIGATION
-// ═══════════════════════════════════════════════
-function goToSection(idx, skipCost) {
-  if (!skipCost) {
-    spendTime(5, 'Moving between sections');
-    if (G.gameOver) return;
-  }
-  G.section = idx;
-  G.turnsInSection = 0;
-  updateSectionNodes();
+function setText(t){ document.getElementById('narrative-text').textContent = t; document.getElementById('narrative-box').scrollTop = 0; }
 
-  const sec = SECTIONS[idx];
-  setText(sec.entryText());
-  setChoices(sec.choices());
-  renderStats();
-
-  // Random encounter check (not on first section or on win-path)
-  if (!skipCost && Math.random() < 0.55) {
-    setTimeout(() => triggerEncounter(), 400);
-  }
-}
-
-function moveToSection(idx, stealthy) {
-  const cost = stealthy && G.stealth ? 3 : 5;
-  spendTime(cost, null);
-  if (G.gameOver) return;
-  G.section = idx;
-  G.turnsInSection = 0;
-  updateSectionNodes();
-
-  const sec = SECTIONS[idx];
-  setText(sec.entryText());
-  setChoices(sec.choices());
-  renderStats();
-
-  if (Math.random() < 0.5 && idx < 4) {
-    setTimeout(() => triggerEncounter(), 300);
-  }
+function setChoices(list){
+  const box = document.getElementById('choices-box');
+  box.innerHTML = '';
+  list.forEach(c => {
+    if (!c) return;
+    const b = document.createElement('button');
+    b.className = 'choice-btn' + (c.kind ? ' ' + c.kind : '');
+    b.textContent = c.text;
+    b.onclick = c.action;
+    box.appendChild(b);
+  });
 }
 
 // ═══════════════════════════════════════════════
-//  TIME & LOSS
+//  LANDMARK ARRIVAL
 // ═══════════════════════════════════════════════
-function spendTime(mins, reason) {
-  G.time = Math.max(0, G.time - mins);
-  renderStats();
-  if (G.time <= 0) {
-    triggerLoss();
-  }
+function arriveLandmark(idx, first){
+  G.leg = idx; G.traveling = false;
+  const lm = LANDMARKS[idx];
+  showScene(lm.scene);
+  updateTrail(idx);
+  renderAll();
+
+  // dispatch to specific handler
+  if (lm.id === 'camp')    return atCamp(first);
+  if (lm.id === 'pond')    return atPond();
+  if (lm.id === 'boots')   return atBoots();
+  if (lm.id === 'flannel') return atFlannel();
+  if (lm.id === 'exit')    return atExit();
 }
 
-function gainTime(mins) {
-  G.time = Math.min(90, G.time + mins);
-  renderStats();
+function itemHereButtons(){
+  // returns array of pickup buttons for items located at the current landmark
+  const lm = LANDMARKS[G.leg].id;
+  const btns = [];
+  if (!G.hasMoxie && !G.pickedUp.moxie && G.itemAt.moxie === lm)
+    btns.push({ text:'Grab the can of Moxie sitting nearby', action: grabMoxie });
+  if (!G.hasMaple && !G.pickedUp.maple && G.itemAt.maple === lm)
+    btns.push({ text:'Pocket the jar of Maine maple syrup', action: grabMaple });
+  return btns;
 }
 
-// ═══════════════════════════════════════════════
-//  ACTIONS
-// ═══════════════════════════════════════════════
-function sneakAction() {
-  G.wit = Math.min(100, G.wit + 8);
-  setText(`You hug the wall like a man who has been avoiding conversations his entire adult life — which is to say, with professional grace. You snag a compact headlamp from the display rack. The tourist looks up once, then back at the stove. He is computing BTU output on his phone.
+function setOutButton(){
+  const next = LANDMARKS[G.leg + 1];
+  return { text:'▶ Set out for the ' + next.name, action: beginLeg };
+}
 
-Headlamp acquired. Wit sharpened.`);
+// ── Camp (start) ──
+function atCamp(first){
+  setText(`You claw out of a display tent. A foam-pad sticker is stuck to your cheek. The Camping Gear department stretches out in the dark — a cathedral of Gore-Tex. Somewhere a Bluetooth speaker softly plays Mumford & Sons. Nobody chose this.
+
+Ida is out in the Brat, engine idling since midnight. You have ${G.time} minutes to dawn. The Boot Wall is three departments away.
+
+${G.tourist.name} from ${G.tourist.origin} is nearby with ${G.tourist.item}, squinting at a $340 camp stove like it owes him money.`);
   setChoices([
-    { text: 'Continue toward the Trout Pond', action: () => moveToSection(1) },
-    { text: 'Stay put a moment longer (let tourist move on)', action: () => waitAction() },
+    ...itemHereButtons(),
+    setOutButton(),
   ]);
-  renderStats();
 }
 
-function lifeAction() {
-  if (!G.hasLifesavers) {
-    setText('You reach for the Lifesavers, but the roll is gone. You already used those.\n\nYou are alone with your choices.');
-    setChoices(SECTIONS[G.section].choices());
+// ── Trout Pond (rest stop) ──
+function atPond(){
+  setText(`The famous indoor Trout Pond glows green and perfectly still. A taxidermied brook trout judges you quietly. A display canoe sits to one side; a taxidermy moose stands sentinel near the reeds.
+
+This is a good place to catch your breath — if you can spare the minutes.`);
+  const opts = [ ...itemHereButtons() ];
+  opts.push({ text:'Rest by the pond (−5 min, calm your nerves −20 Panic)', action: restAtPond });
+  if (G.hasFlannel)
+    opts.push({ text:'Stand still by the moose in your flannel (shed CORNERED, +Wit)', action: mooseHide });
+  opts.push(setOutButton());
+  setChoices(opts);
+}
+function restAtPond(){
+  spendTime(5); if (G.gameOver) return;
+  adjustPanic(-20); adjustWit(5);
+  setText(`You sit on the cold stone lip of the pond and just breathe for a minute. The trout watches. The Mumford & Sons fades. Your blood pressure eases.
+
+−5 min. −20 Panic. +5 Dry Wit.`);
+  renderAll();
+  setChoices([ ...itemHereButtons(), setOutButton() ]);
+}
+function mooseHide(){
+  for (const id in G.status){ if (id === 'cornered') delete G.status[id]; }
+  adjustWit(12);
+  setText(`You plant yourself beside the taxidermy moose, flannel matching the rustic display perfectly, and go utterly still. A couple from Westchester points: "Oh look, a MANNEQUIN. So authentic." They photograph you. You do not blink.
+
+You shed any cornered feeling. +12 Dry Wit. The disguise holds.`);
+  renderAll();
+  setChoices([ ...itemHereButtons(), setOutButton() ]);
+}
+
+// ── Boot Wall (objective) ──
+function atBoots(){
+  if (G.hasBoots){
+    setText(`The Boot Wall. You already have your 10.5 Wide in hand — leather and rubber and a hundred years of Yankee pragmatism. No reason to linger.`);
+    setChoices([ ...itemHereButtons(), setOutButton() ]);
     return;
   }
-  G.hasLifesavers = false;
-  spendTime(2);
-  G.wit = Math.min(100, G.wit + 5);
-  setText(`You slide the Wintergreen Lifesavers across the floor toward the stove display. The tourist hears the rattle. He bends down. He is confused and then oddly pleased. "Oh wow, Wintergreen! These were my grandfather's..." He is now somewhere else emotionally.
+  setText(`The Boot Wall. The smell hits first: leather, rubber, neatsfoot oil. Your size sits right there on the third shelf — 10.5 Wide, moc-toe, just like you called in Tuesday.
 
-You are gone.`);
-  renderInventory();
-  setChoices([{ text: 'Proceed to Trout Pond', action: () => moveToSection(1) }]);
+But ${G.tourist.name} from ${G.tourist.origin} stands between you and it, asking a hollow-eyed associate named Kayla if the moc-toe comes in "slate blue." This is the whole reason you're here. You are not leaving without those boots.`);
+  const opts = [];
+  if (G.hasMaple)
+    opts.push({ text:'Leave the maple syrup as a decoy trail (clean grab)', action: bootsViaMaple });
+  if (G.ayuh > 0)
+    opts.push({ text:'Shoulder in with an AYUH STANDOFF', action: bootsViaStandoff });
+  opts.push({ text:'Ask Kayla a complicated question, then swipe them (−7 min)', action: bootsViaKayla });
+  setChoices(opts);
+}
+function getBootsThen(msg){
+  G.hasBoots = true; renderAll();
+  setText(msg + `\n\nYou have your boots. Two departments to the Brat.`);
+  setChoices([ setOutButton() ]);
+}
+function bootsViaMaple(){
+  G.hasMaple = false; adjustWit(10);
+  getBootsThen(`You set the syrup at the end of the aisle. ${G.tourist.name} spots it — "Babe, is that LOCAL maple?!" — and drifts off entirely. Kayla gives you a look of pure gratitude as you lift your size off the shelf.`);
+}
+function bootsViaKayla(){
+  spendTime(7); if (G.gameOver) return;
+  adjustWit(8);
+  getBootsThen(`You ask Kayla for "the Handsewn Camp Moc in 13EEE." She nods with the dead calm of the overnight shift and heads for the stockroom; ${G.tourist.name} follows his only anchor to reality. Thirty unsupervised seconds is all you need.`);
+}
+function bootsViaStandoff(){
+  ayuhStandoff(function(success){
+    if (success){
+      G.ayuh--; adjustWit(8); adjustPanic(-5);
+      getBootsThen(`You look ${G.tourist.name} dead in the eye. "Ayuh." One syllable, flat as a lake in August. Something ancient overrides his decision paralysis. He steps aside. You take your boots.`);
+    } else {
+      G.ayuh--; spendTime(9); adjustPanic(8);
+      if (G.gameOver) return;
+      setText(`The Ayuh lands wrong — he hears an invitation. "Oh, you ARE local! So about waterproofing..." Nine minutes evaporate before you pry your boots loose.`);
+      G.hasBoots = true; renderAll();
+      setChoices([ setOutButton() ]);
+    }
+  });
 }
 
-function grabMoxie() {
-  G.hasMoxie = true;
-  G.moxieFound = true;
-  setText(`You pick up the Moxie. It's slightly warm. You don't care. It's Moxie. The birch-bark bitterness hits your memory like a childhood summer.
-
-You are not going to drink it yet. This is strategic Moxie. A Moxie held in reserve is a Moxie with power.
-
-+15 minutes available whenever you crack it open.`);
-  renderInventory();
+// ── Flannel Racks ──
+function atFlannel(){
+  const t = `A plaid wilderness — every weight of flannel a man who heats with wood could want.`;
+  if (G.hasFlannel){
+    setText(`${t}\n\nYour chamois shirt is already doing its quiet work; you read as merchandise. One department to the Exit.`);
+    setChoices([ ...itemHereButtons(), setOutButton() ]);
+    return;
+  }
+  setText(`${t}\n\nA Buffer Green chamois shirt hangs at eye level in your exact size. Put it on and you'll move like part of the display — Flatlanders won't peg you as a local who can help them.`);
   setChoices([
-    { text: 'Drink the Moxie NOW (+15 min)', action: () => drinkMoxie() },
-    { text: 'Save it and head toward the Boot Section', action: () => moveToSection(2) },
-    { text: 'Hide in the canoe and assess the situation', action: () => waitInCanoe() },
+    { text:'Pull on the chamois flannel (FLANNEL CAMO: halves encounters)', action: grabFlannel },
+    ...itemHereButtons(),
+    setOutButton(),
   ]);
 }
+function grabFlannel(){
+  G.hasFlannel = true; addStatus('camo'); adjustWit(10);
+  setText(`You shrug into the chamois. Buffer Green, XL, fits over your coat like it was made for you. Two women decide instantly that you're a regional expert and look away.
 
-function drinkMoxie() {
+FLANNEL CAMO active — encounter risk halved while you travel. +10 Dry Wit.`);
+  renderAll();
+  setChoices([ ...itemHereButtons(), setOutButton() ]);
+}
+
+// ── Exit (final gauntlet) ──
+function atExit(){
+  showScene('exit');
+  if (!G.hasBoots){
+    setText(`You can see the Brat idling through the glass — but you never got your boots. You can't go home empty-handed; Ida will ask. You have to double back to the Boot Wall.`);
+    setChoices([ { text:'◀ Head back to the Boot Wall', action: ()=>arriveLandmark(2) } ]);
+    return;
+  }
+  setText(`Twenty feet of revolving-door glory. Through the glass: the Boot statue, the parking lot, the Brat's exhaust curling in the cold June air, Ida's silhouette behind the wheel.
+
+One last obstacle — a man in khaki shorts (it is 48 degrees) is quizzing the door greeter about the return policy. His wife takes notes. They are, evidently, from New Jersey.`);
+  const opts = [];
+  if (G.ayuh > 0)
+    opts.push({ text:'Settle it with a final AYUH STANDOFF', action: exitStandoff });
+  if (G.hasMaple)
+    opts.push({ text:'Leave the maple on the bench; they investigate', action: ()=>{ G.hasMaple=false; renderAll(); triggerWin(); } });
+  opts.push({ text:'Just stride through with purpose (−5 min)', action: ()=>{ spendTime(5); if(!G.gameOver) triggerWin(); } });
+  setChoices(opts);
+}
+function exitStandoff(){
+  ayuhStandoff(function(success){
+    if (success){ G.ayuh--; triggerWin(); }
+    else { G.ayuh--; spendTime(8); if (!G.gameOver) triggerWin(); }
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  TRAVEL LOOP
+// ═══════════════════════════════════════════════
+function beginLeg(){
+  G.traveling = true;
+  G.segTotal = rnd(2, 4);
+  G.segLeft = G.segTotal;
+  showPaceChoice();
+}
+
+function showPaceChoice(){
+  showScene('aisle');
+  const next = LANDMARKS[G.leg + 1];
+  const stepNo = G.segTotal - G.segLeft + 1;
+  setText(`Aisle ${stepNo} of ${G.segTotal} toward the ${next.name}. The dim corridor stretches ahead between the shelves. How do you move?`);
+  setChoices(PACES.map(p => ({
+    text: `${p.label} — ${p.tag}  [−${p.time} min]`,
+    action: () => travelStep(p),
+    kind: 'pace-btn',
+  })));
+}
+
+function travelStep(pace){
+  // time cost (status modifiers)
+  let t = pace.time;
+  if (hasStatus('secondwind')) t -= 1;
+  if (hasStatus('sugarcrash')) t += 4;
+  spendTime(Math.max(1, t)); if (G.gameOver) return;
+
+  adjustWit(pace.wit);
+  adjustPanic(pace.panic);
+  tickStatus();
+  renderAll();
+
+  // panic overflow → forced snap
+  if (G.panic >= 100) { return panicSnap(afterSegment); }
+
+  // encounter roll
+  let risk = pace.risk;
+  if (hasStatus('camo'))        risk *= 0.5;
+  if (hasStatus('caffeinated')) risk += 0.18;
+  risk += G.panic / 400;
+
+  if (chance(risk)) fireEvent(afterSegment);
+  else              uneventfulStep(afterSegment);
+}
+
+function afterSegment(){
+  G.segLeft--;
+  if (G.segLeft <= 0) arriveLandmark(G.leg + 1);
+  else showPaceChoice();
+}
+
+const QUIET_LINES = [
+  'You pass a wall of fleece in forty colors. Nobody. The clock ticks.',
+  'An empty aisle of kayaks. You move through it like weather.',
+  'Just merchandise and silence and the hum of the cooler cases. You press on.',
+  'A mannequin in full rain gear watches you go by. You nod to it out of habit.',
+  'You slip past the sock wall unbothered. Small mercies.',
+  'The pine-scented air vents hiss overhead. No tourists this stretch. Good.',
+];
+function uneventfulStep(cb){
+  showScene('aisle');
+  setText(pick(QUIET_LINES));
+  setChoices([ { text:'Keep moving →', action: cb, kind:'continue-btn' } ]);
+}
+
+// ── Event presentation via the encounter popup ──
+function fireEvent(cb){
+  // draw without repeats until deck exhausts
+  if (G.eventIdx >= G.eventDeck.length){ G.eventDeck = shuffle(EVENTS.slice()); G.eventIdx = 0; }
+  const ev = G.eventDeck[G.eventIdx++];
+
+  const popup = document.getElementById('encounter-popup');
+  document.getElementById('encounter-text').textContent = ev.text();
+  const box = document.getElementById('encounter-choices');
+  box.innerHTML = '';
+  ev.options.forEach(opt => {
+    const b = document.createElement('button');
+    b.className = 'choice-btn encounter-btn';
+    b.textContent = opt.label;
+    b.onclick = () => {
+      popup.style.display = 'none';
+      if (ev.panicEvent) adjustPanic(0); // panic applied via outcome below
+      const out = opt.run();
+      if (out.standoff){ ayuhStandoff(success => resolveStandoffOutcome(success, cb)); return; }
+      applyOutcome(out);
+      showOutcome(out.text || 'You move on.', cb);
+    };
+    box.appendChild(b);
+  });
+  popup.style.display = 'block';
+}
+
+function applyOutcome(out){
+  if (out.time)   spendTime(out.time);
+  if (out.panic)  adjustPanic(out.panic);
+  if (out.wit)    adjustWit(out.wit);
+  if (out.ayuh)   G.ayuh = clamp(G.ayuh + out.ayuh, 0, 4);
+  if (out.clearPanic) G.panic = 0;
+  if (out.status) addStatus(out.status);
+  renderAll();
+}
+
+function showOutcome(text, cb){
+  if (G.gameOver) return;
+  showScene('aisle');
+  setText(text);
+  setChoices([ { text:'Keep moving →', action: cb, kind:'continue-btn' } ]);
+}
+
+function resolveStandoffOutcome(success, cb){
+  if (success){
+    G.ayuh = Math.max(0, G.ayuh - 1);
+    adjustWit(10); adjustPanic(-6); renderAll();
+    showOutcome('A perfect, flat "Ayuh." The Flatlander\'s brain stalls mid-sentence. You\'re past them before it reboots. Clean escape, no time lost. +10 Dry Wit.', cb);
+  } else {
+    G.ayuh = Math.max(0, G.ayuh - 1);
+    spendTime(9); adjustPanic(8); addStatus('cornered'); renderAll();
+    showOutcome('The timing is off. The "Ayuh" lands like a question and he pounces with follow-ups. −9 min, +Panic. You feel Cornered.', cb);
+  }
+}
+
+function panicSnap(cb){
+  G.panic = 55;
+  G.ayuh = Math.min(4, G.ayuh + 1);
+  spendTime(10); if (G.gameOver) return;
+  renderAll();
+  showScene('aisle');
+  setText(`Your blood pressure hits the ceiling. A man just said "Is this the way to BANG-ger?" for the third time and something generational snaps.
+
+You wheel around: "It's BANG-gor. Rhymes with anger — which I have." He nods, terrified. You breathe.
+
+−10 min. Panic reset. +1 Ayuh charge (pure adrenaline).`);
+  setChoices([ { text:'Keep moving →', action: cb, kind:'continue-btn' } ]);
+}
+
+// ═══════════════════════════════════════════════
+//  AYUH STANDOFF  (timing minigame)
+// ═══════════════════════════════════════════════
+function ayuhStandoff(onResult){
+  const main = document.getElementById('main');
+  let ov = document.getElementById('standoff');
+  if (!ov){ ov = document.createElement('div'); ov.id = 'standoff'; main.appendChild(ov); }
+  ov.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:460px;max-height:88vh;overflow-y:auto;border:2px solid var(--amber);background:#000;padding:22px;z-index:450;text-align:center;box-shadow:0 0 30px rgba(255,179,0,0.3);';
+
+  // higher Dry Wit = wider target; higher Panic = faster marker
+  const zoneW = clamp(16 + G.wit * 0.30, 14, 52);
+  const zoneL = 50 - zoneW / 2;
+  const speed = 1.1 + G.panic * 0.028;
+
+  ov.innerHTML =
+    '<div style="color:var(--amber);letter-spacing:3px;font-size:12px;margin-bottom:8px;">⚔ AYUH STANDOFF ⚔</div>' +
+    '<div style="font-size:calc(13px*var(--fscale));line-height:1.7;margin-bottom:14px;color:var(--green);">A Flatlander has you cornered. Time your deadpan: stop the marker in the green zone to land a perfect "Ayuh." Wider zone = sharper wit. Faster marker = higher panic.</div>' +
+    '<div id="sf-track" style="position:relative;height:28px;border:1px solid var(--green);background:#001400;overflow:hidden;">' +
+      '<div style="position:absolute;top:0;bottom:0;left:' + zoneL + '%;width:' + zoneW + '%;background:rgba(57,255,20,0.25);border-left:1px solid var(--green);border-right:1px solid var(--green);"></div>' +
+      '<div id="sf-marker" style="position:absolute;top:0;bottom:0;width:4px;background:var(--amber);box-shadow:0 0 8px var(--amber);left:0;"></div>' +
+    '</div>' +
+    '<button id="sf-go" style="margin-top:16px;background:#000;border:2px solid var(--amber);color:var(--amber);font-family:inherit;font-size:15px;letter-spacing:3px;padding:11px 28px;cursor:pointer;min-height:44px;">DEPLOY &quot;AYUH&quot;</button>';
+  ov.style.display = 'block';
+
+  let pos = 0, dir = 1, raf;
+  const marker = ov.querySelector('#sf-marker');
+  function loop(){
+    pos += dir * speed;
+    if (pos >= 100){ pos = 100; dir = -1; }
+    if (pos <= 0){ pos = 0; dir = 1; }
+    marker.style.left = pos + '%';
+    raf = requestAnimationFrame(loop);
+  }
+  loop();
+
+  ov.querySelector('#sf-go').onclick = function(){
+    cancelAnimationFrame(raf);
+    ov.style.display = 'none';
+    const success = pos >= zoneL && pos <= (zoneL + zoneW);
+    onResult(success);
+  };
+}
+
+// ═══════════════════════════════════════════════
+//  ITEM PICKUPS
+// ═══════════════════════════════════════════════
+function grabMoxie(){
+  G.hasMoxie = true; G.pickedUp.moxie = true;
+  setText(`You pick up the Moxie. Slightly warm. You don't care — it's Moxie, the coal-tar bitterness of childhood summers. Strategic Moxie, held in reserve. Crack it anytime to claw back time and calm your nerves.`);
+  renderAll();
+  refreshLandmarkChoices();
+}
+function grabMaple(){
+  G.hasMaple = true; G.pickedUp.maple = true;
+  setText(`A jar of Grade A Dark maple syrup, the good stuff, into your coat pocket. Heavy, and smelling of pancakes and a life not spent talking to tourists. This will make an excellent decoy.`);
+  renderAll();
+  refreshLandmarkChoices();
+}
+function drinkMoxie(){
   if (!G.hasMoxie) return;
   G.hasMoxie = false;
-  gainTime(15);
-  G.wit = Math.min(100, G.wit + 10);
-  const panicBefore = G.panic;
-  G.panic = Math.max(0, G.panic - 35);
-
-  // Sugar crash risk: 30% chance if panic was already low
-  const crashed = panicBefore < 30 && Math.random() < 0.3;
-  if (crashed) {
+  const lowPanic = G.panic < 30;
+  gainTime(15); adjustWit(10); adjustPanic(-35);
+  if (lowPanic && chance(0.30)){
     spendTime(8);
+    setText(`You crack the Moxie. The bitterness hits, then the sugar — your vision swims and you grip a shelf for eight minutes. +15 min, −35 Panic, +10 Wit, but −8 min sugar crash.`);
     if (G.gameOver) return;
-    setText(`You crack the Moxie. The coal-tar bitterness hits immediately — your grandfather's drink, his grandfather's drink. Your blood pressure drops like a stone.
-
-Then the sugar hits. Your vision swims. You grip a flannel rack for support and stare at the ceiling for eight minutes.
-
-+15 min (time). -35 Panic. +10 Wit. But sugar crash: -8 min.`);
   } else {
-    setText(`You crack the Moxie open. The sound echoes through the store like a starting pistol. Nobody reacts — they're all arguing about fleece weights.
-
-The familiar coal-tar bitterness courses through you. Your blood pressure eases. Your shoulders drop. Your grandfather drank this. You are a man of Maine and you are going to get these boots and go home.
-
-+15 minutes. -35 Panic. +10 Dry Wit.`);
+    setText(`You crack it open with a starting-pistol hiss. Nobody reacts. Your shoulders drop; your grandfather drank this. +15 min, −35 Panic, +10 Dry Wit.`);
   }
-  renderInventory();
-  renderStats();
-  setChoices(SECTIONS[G.section].choices());
+  renderAll();
+  refreshLandmarkChoices();
 }
-
-// ── Flannel Camouflage: stand still near the taxidermy moose ──
-function standByMoose() {
-  G.mooseHiding = true;
-  if (G.hasFlannel) {
-    // Flannel = near-perfect camouflage
-    G.wit = Math.min(100, G.wit + 15);
-    setText(`You position yourself beside the taxidermied moose, flannel shirt perfectly matching the rustic display aesthetic. You go still. Completely still.
-
-A couple from Westchester walks past. The woman points at you. "Oh look, they have a MANNEQUIN now. So authentic." Her husband photographs you.
-
-You do not move. You are the display. You are Maine itself.
-
-They leave. +15 Wit. Zero time lost. Flannel camouflage: PERFECT.`);
-    setChoices([{ text: 'Proceed to the Boot Section', action: () => moveToSection(2) }]);
-  } else {
-    const roll = Math.random();
-    if (roll < 0.55) {
-      spendTime(4);
-      if (G.gameOver) return;
-      G.wit = Math.min(100, G.wit + 8);
-      setText(`You stand rigid beside the taxidermy moose. Arms at your sides. Eyes fixed on the middle distance. You become part of the display.
-
-Three tourists walk past without a second glance. One drops a Clif Bar at your feet as if you're a tip jar. You wait until they're gone.
-
--4 min (standing time). +8 Wit.`);
-      setChoices([{ text: 'Continue to the Boot Section', action: () => moveToSection(2) }]);
-    } else {
-      spendTime(10);
-      if (G.gameOver) return;
-      setText(`You stand next to the moose. You commit. Unfortunately, a child from New Hampshire tugs her mother's sleeve: "Mommy that man is BLINKING."
-
-Her mother apologizes to you on behalf of her daughter. Then she asks if you work there. Then she asks about hiking trails. -10 min.`);
-      setChoices(SECTIONS[G.section].choices());
-    }
-  }
-  renderStats();
-}
-
-// ── Ayuh charge: spend one to auto-succeed a social escape ──
-function fireAyuh(location) {
-  if (G.ayuhCharges <= 0) {
-    setText(`You open your mouth. Nothing comes out. You've said "Ayuh" so many times tonight the word has lost all meaning. Even to you.\n\nYou are going to have to do this the hard way.`);
-    setChoices(SECTIONS[G.section].choices());
-    return;
-  }
-  G.ayuhCharges--;
-  G.panic = Math.max(0, G.panic - 10);
-  G.wit = Math.min(100, G.wit + 8);
-
-  const lines = {
-    'Boot Section': `You look Todd in the eye. One word. Flat as a lake in August:\n\n"Ayuh."\n\nTodd stops. Something ancient and Yankee in his DNA recognizes the word as final. He steps aside. He doesn't know why. He will think about it later.\n\nYou have your boots.`,
-    'Flannel Racks': `"Ayuh."\n\nOne word. The debate about cottagecore stops. Both women look at you. You nod once. You are through the rack gap before they recover.\n\nThe word hangs in the air behind you like woodsmoke.`,
-    'Exit': `You look at the man in khaki shorts.\n\n"Ayuh."\n\nHe doesn't know what it means. He doesn't need to. The door greeter nods gravely. You walk through.\n\nFreedom.`,
-    'default': `"Ayuh."\n\nIt works. It always works, if you mean it. You're through.`,
-  };
-
-  const afterActions = {
-    'Boot Section': () => { G.hasBoots = true; renderInventory(); renderStats(); setChoices([{ text: 'Head to the Flannel Racks', action: () => moveToSection(3) }]); },
-    'Flannel Racks': () => moveToSection(4, true),
-    'Exit': () => finalEscape(),
-    'default': () => setChoices(SECTIONS[G.section].choices()),
-  };
-
-  setText(lines[location] || lines['default']);
-  renderStats();
-  const after = afterActions[location] || afterActions['default'];
-  if (location === 'Exit') { setTimeout(after, 100); } else { after(); }
-}
-
-// ── Panic helpers ──
-function raisePanic(amount) {
-  G.panic = Math.min(100, G.panic + amount);
-  renderStats();
-  if (G.panic >= 100) triggerPanicSnap();
-}
-
-function triggerPanicSnap() {
-  // Panic overflow: Ernie snaps, costs time, resets panic to 60
-  spendTime(10);
-  if (G.gameOver) return;
-  G.panic = 60;
-  G.ayuhCharges = Math.min(4, G.ayuhCharges + 1); // adrenaline refills one pip
-  setText(`Your blood pressure hits the ceiling.\n\nA man from New York just said "Is this the way to BANG-ger?" for the third time in your earshot. Something in you — something deep and generational — snaps.\n\nYou say, very quietly but very clearly: "It's BANG-gor. It rhymes with 'anger.' Which I have."\n\nYou breathe. The man nods, terrified. You walk away. -10 min. Panic reset. +1 Ayuh charge (adrenaline).`);
-  renderStats();
-  setChoices(SECTIONS[G.section].choices());
-}
-
-function waitInCanoe() {
-  spendTime(8);
-  if (G.gameOver) return;
-  setText(`You fold yourself into the display Old Town canoe behind a rack of PFDs and wait. The Hoboken couple takes four hundred photos with the trout pond. She asks him to "look more outdoorsy." He tries.
-
-Eventually they drift toward the kayaks.
-
-The way is clear. Also your back hurts. -8 minutes.`);
-  setChoices([{ text: 'Head to the Boot Section', action: () => moveToSection(2) }]);
-}
-
-function ownerWalk() {
-  const roll = Math.random() * 100;
-  if (G.wit > 60 || roll < 40) {
-    G.wit = Math.min(100, G.wit + 12);
-    setText(`You walk through the Trout Pond area with the quiet authority of a man who has never questioned whether he belongs somewhere. The Hoboken couple glances up. You give a single measured nod. They interpret this as "local expert approves of their presence."
-
-They return to their photos. You are already gone.
-
-Dry Wit +12.`);
-    setChoices([{ text: 'Continue to the Boot Section', action: () => moveToSection(2) }]);
-  } else {
-    spendTime(10);
-    if (G.gameOver) return;
-    setText(`You walk through with authority. Unfortunately the man interprets this as an invitation.
-
-"Hey! Local guy! What's a good hike? Something moderate. But also scenic. And with a view. And not too crowded. And we have a 4-year-old. And a dog. But the dog has anxiety."
-
-You answer three of these. It costs you. -10 minutes.`);
-    setChoices([{ text: 'Extract yourself and head to the Boot Section', action: () => moveToSection(2) }]);
-  }
-}
-
-function grabMaple() {
-  G.hasMaple = true;
-  G.mapleFound = true;
-  setText(`There it is: a jar of Maine maple syrup in the gift display. Grade A Dark. The good stuff. You slip it into your coat pocket. It's heavy and smells like pancakes and morning and a life not spent talking to tourists.
-
-This could be useful.`);
-  renderInventory();
-  setChoices(SECTIONS[2].choices());
-}
-
-function mapleDistract() {
-  G.hasMaple = false;
-  spendTime(0);
-  G.wit = Math.min(100, G.wit + 15);
-  setText(`You set the jar of maple syrup on the shelf at the end of Todd's aisle and wait. It takes twelve seconds. Todd spots it. "Oh WOW is that LOCAL maple? Babe, BABE, look—" He drifts away from the boots entirely, babe in tow.
-
-Kayla makes eye contact with you. You give her the single nod. She gives you a look of infinite gratitude.
-
-You collect your boots. Size 10.5 Wide. Moc-toe. Classic tan. Ida's going to say nothing because she understands quality.`);
-  G.hasBoots = true;
-  renderInventory();
-  renderStats();
-  setChoices([{ text: 'Head to the Flannel Racks', action: () => moveToSection(3) }]);
-}
-
-function distractKayla() {
-  spendTime(7);
-  if (G.gameOver) return;
-  G.wit = Math.min(100, G.wit + 8);
-  setText(`You position yourself on the far side of the Boot Section and raise your hand. "Kayla? Do you have the Handsewn Camp Moc in a 13EEE?"
-
-Kayla nods with the hollow eyes of a professional and moves toward the stockroom. Todd follows, since Kayla is his anchor to reality.
-
-You have thirty seconds. You find your boots. You do not try them on. You know they fit. They always fit.`);
-  G.hasBoots = true;
-  renderInventory();
-  renderStats();
-  setChoices([{ text: 'Head to the Flannel Racks — quick now', action: () => moveToSection(3) }]);
-}
-
-function deployWit(location) {
-  // If player has charges, route to the guaranteed Ayuh system
-  if (G.ayuhCharges > 0) { fireAyuh(location); return; }
-  // No charges — pure wit roll, penalized by panic
-  const roll = Math.random() * 100;
-  const threshold = location === 'Exit' ? 45 : 55;
-  const panicPenalty = G.panic >= 70 ? 20 : G.panic >= 40 ? 10 : 0;
-  const success = (G.wit - panicPenalty) >= threshold || roll < (G.wit - panicPenalty);
-
-  if (success) {
-    G.wit = Math.min(100, G.wit + 10);
-    const quips = {
-      'Boot Section': `You turn to Todd. You look him square in the eye. You say, very quietly:
-
-"Ayuh."
-
-Todd blinks. Something happens in his brain. The word bypasses his usual processing. He just nods. He steps aside. He will think about this moment for years.
-
-You get your boots.`,
-      'Flannel Racks': `You approach the two women mid-debate. You look at the flannel they're holding. You say, simply and sincerely:
-
-"That'll last you thirty years. My father had one like it."
-
-They both go quiet. They buy the flannel. They feel they have learned something.
-
-You are already at the exit corridor.`,
-      'Exit': `You look the khaki-shorts man in the eye. You say:
-
-"Return policy's simple. If it breaks, they fix it. If you don't like it, bring it back. They've been doing it since 1912. Now if you'll excuse me."
-
-He nods with profound respect for institutional continuity. You walk through the door.`
-    };
-    const afterAction = {
-      'Boot Section': () => { G.hasBoots = true; renderInventory(); renderStats(); setChoices([{ text: 'Head to the Flannel Racks', action: () => moveToSection(3) }]); },
-      'Flannel Racks': () => moveToSection(4, true),
-      'Exit': () => finalEscape(),
-    };
-    setText(quips[location] || 'Ayuh.');
-    setTimeout(() => afterAction[location] && afterAction[location](), location === 'Exit' ? 100 : 0);
-  } else {
-    spendTime(location === 'Boot Section' ? 10 : 8);
-    if (G.gameOver) return;
-    G.wit = Math.max(0, G.wit - 5);
-    const fails = {
-      'Boot Section': `You attempt the Ayuh. But something — nerves, fatigue, the foam sleeping pad still stuck to your face — makes it land wrong. Todd hears it as an invitation.
-
-"Oh, so you ARE local! Perfect. So here's my question about the boots..."
-
-It takes you ten minutes to escape. Todd has opinions about waterproofing.`,
-      'Flannel Racks': `You approach. You say "wicked good." They don't hear the irony. They think you're staff. They have questions about sizing and return policies and whether flannel "reads as ironic on the Upper West Side."
-
-Eight minutes, gone.`,
-      'Exit': `The Ayuh doesn't land. He asks if YOU know about the return policy. You explain it. His wife has follow-up questions. Eight minutes disappear into the Maine night.`,
-    };
-    setText((fails[location] || 'You lose some time.') + `\n\nDry Wit -5.`);
-    renderStats();
-    setChoices(SECTIONS[G.section].choices());
-  }
-}
-
-function grabFlannel() {
-  G.hasFlannel = true;
-  G.flannelFound = true;
-  G.stealth = true;
-  G.wit = Math.min(100, G.wit + 10);
-  setText(`You lift the chamois shirt off the rack. Buffer Green, XL. It fits over your coat like it was made for you — because in some sense, it was. You button it halfway. You look like you live here. You look like you have always been here.
-
-The two women glance at you and immediately decide you are a regional expert.
-
-+20% Stealth. Future section moves cost only 3 minutes. Dry Wit +10.`);
-  renderInventory();
-  renderStats();
-  setChoices(SECTIONS[3].choices());
-}
-
-function dropLifesavers() {
-  if (!G.hasLifesavers) {
-    setText(`You reach for the Lifesavers. The pocket is empty. You used those already.\n\nYou are a man alone with his flannel and his choices.`);
-    setChoices(SECTIONS[G.section].choices());
-    return;
-  }
-  G.hasLifesavers = false;
-  spendTime(2);
-  if (G.gameOver) return;
-  G.wit = Math.min(100, G.wit + 8);
-  setText(`You drop the Lifesavers roll on the floor near the flannel rack. The cellophane crinkles with authority. One woman looks down. The other looks down. They are discussing the Lifesavers now.
-
-You slip through the gap like smoke.`);
-  renderInventory();
-  setChoices([{ text: 'Head to the Exit Vestibule', action: () => moveToSection(4) }]);
-}
-
-function waitAction() {
-  spendTime(5);
-  if (G.gameOver) return;
-  setText(`You wait. The tourist goes back to looking at camp stoves. The store hums with the low frequency of capitalism never sleeping.
-
--5 minutes. The path looks clearer.`);
-  setChoices(SECTIONS[0].choices());
-}
-
-function finalEscape() {
-  if (!G.hasBoots) {
-    setText(`You push toward the door — and then stop. You didn't get the boots.\n\nIda's out there. Without boots, this whole thing was for nothing. You turn around.`);
-    setChoices([{ text: 'Go back for the boots (Boot Section)', action: () => goToSection(2) }]);
-    return;
-  }
-  triggerWin();
-}
-
-function finalMaple() {
-  G.hasMaple = false;
-  const saved = 5;
-  gainTime(0);
-  G.wit = Math.min(100, G.wit + 10);
-  setText(`You set the maple syrup on the bench near the door with the calm of a man leaving a peace offering. The couple from New Jersey sees it immediately. The woman photographs it. The man picks it up to read the label.
-
-"Is this REAL Maine maple? Like, from an actual Maine maple?"
-
-The door greeter is now explaining maple trees.
-
-You are through the door.`);
-  renderInventory();
-  setTimeout(() => triggerWin(), 100);
-}
-
-// ═══════════════════════════════════════════════
-//  ENCOUNTER SYSTEM
-// ═══════════════════════════════════════════════
-function triggerEncounter() {
-  if (G.gameOver || G.section === 4) return;
-  // Draw from shuffled pool in order — cycle if exhausted
-  if (G.encounterIndex >= G.shuffledEncounters.length) {
-    G.shuffledEncounters = shuffle([...ENCOUNTERS]);
-    G.encounterIndex = 0;
-  }
-  const enc = G.shuffledEncounters[G.encounterIndex++];
-  const popup = document.getElementById('encounter-popup');
-  document.getElementById('encounter-text').textContent = enc.text;
-
-  const choicesDiv = document.getElementById('encounter-choices');
-  choicesDiv.innerHTML = '';
-
-  enc.options.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'choice-btn encounter-btn';
-    btn.textContent = opt.text + '  [' + opt.desc + ']';
-    btn.onclick = () => resolveEncounter(opt, popup, enc);
-    choicesDiv.appendChild(btn);
-  });
-
-  popup.style.display = 'block';
-  G.encounterActive = true;
-}
-
-function resolveEncounter(opt, popup, enc) {
-  popup.style.display = 'none';
-  G.encounterActive = false;
-
-  // Raise panic for mispronunciation encounters regardless of choice
-  if (enc && enc.isMispronunciation && enc.panicRaise) {
-    raisePanic(enc.panicRaise);
-    if (G.gameOver) return;
-  }
-
-  // Special option types
-  if (opt.isAyuhSpend) {
-    if (G.ayuhCharges > 0) {
-      G.ayuhCharges--;
-      G.wit = Math.min(100, G.wit + opt.witGain);
-      G.panic = Math.max(0, G.panic - 10);
-      setText(`You deploy the Ayuh. One syllable. Absolute. The tourist is still processing as you round the corner.\n\nAyuh charge spent. Panic -10. Wit +${opt.witGain}.`);
-    } else {
-      spendTime(6);
-      if (G.gameOver) return;
-      setText(`You reach for the Ayuh — and there's nothing left. You've burned through all your reserves. You end up nodding awkwardly for six minutes. -6 min.`);
-    }
-    renderStats();
-    setChoices(SECTIONS[G.section].choices());
-    return;
-  }
-
-  if (opt.isMoxieDrink) {
-    drinkMoxie();
-    return;
-  }
-
-  let cost = opt.timeCost;
-
-  if (opt.isWitTest) {
-    const panicPenalty = G.panic >= 70 ? 20 : G.panic >= 40 ? 10 : 0;
-    if ((G.wit - panicPenalty) >= opt.witThreshold) {
-      cost = 0;
-      G.wit = Math.min(100, G.wit + opt.witGain);
-      setText(`AYUH.\n\nThey don't know what to do with that. You're gone before their brain finishes parsing.\n\nDry Wit check: PASSED. Time cost: 0 minutes.`);
-    } else {
-      cost = 8;
-      G.wit = Math.max(0, G.wit - 5);
-      const panicNote = panicPenalty > 0 ? ` (Panic penalty: -${panicPenalty} effective Wit)` : '';
-      setText(`The Ayuh doesn't land. Your Dry Wit is still developing${panicNote}. You lose time before extracting yourself.\n\nDry Wit check: FAILED. -8 minutes, -5 Wit.`);
-    }
-  } else {
-    G.wit = Math.min(100, Math.max(0, G.wit + opt.witGain));
-    const resultText = cost <= 3
-      ? `Clean escape. -${cost} minute${cost === 1 ? '' : 's'}.`
-      : cost <= 8
-      ? `You make it out. It takes a moment. -${cost} minutes.`
-      : `You get drawn in deeper than expected. -${cost} minutes. Ida is going to hear about this.`;
-    setText(resultText);
-  }
-
-  spendTime(cost);
-  if (!G.gameOver) {
-    renderStats();
-    renderInventory();
-    setChoices(SECTIONS[G.section].choices());
-  }
+// re-render the current landmark's option list after a pickup (only when not traveling)
+function refreshLandmarkChoices(){
+  if (G.traveling) return;
+  const opts = [];
+  if (G.hasMoxie) opts.push({ text:'Crack the Moxie now (+15 min, −35 Panic)', action: drinkMoxie });
+  opts.push(...itemHereButtons());
+  const lm = LANDMARKS[G.leg];
+  if (!lm.final && G.leg < 4) opts.push(setOutButton());
+  else if (lm.id === 'boots' && !G.hasBoots){ atBoots(); return; }
+  setChoices(opts);
 }
 
 // ═══════════════════════════════════════════════
 //  WIN / LOSE
 // ═══════════════════════════════════════════════
-function triggerWin() {
-  G.won = true;
-  G.gameOver = true;
+function hideEndScreen(){ document.getElementById('end-screen').classList.remove('show'); }
 
-  const timeLeft = G.time;
-  const witScore = G.wit;
-  const rating = timeLeft > 40 ? 'LEGENDARY MAINER'
-                : timeLeft > 25 ? 'SOLID WOODSMAN'
-                : timeLeft > 10 ? 'MADE IT BY A HAIR'
-                : 'EXTREMELY CLOSE CALL';
-
-  const endScreen = document.getElementById('end-screen');
-  endScreen.style.color = 'var(--green)';
+function triggerWin(){
+  if (G.gameOver) return;
+  G.won = true; G.gameOver = true;
+  const t = G.time;
+  const rating = t > 35 ? 'LEGENDARY MAINER' : t > 22 ? 'SOLID WOODSMAN' : t > 8 ? 'BY THE SKIN OF YOUR TEETH' : 'PHOTO FINISH';
+  const es = document.getElementById('end-screen');
+  es.style.color = 'var(--green)';
   document.getElementById('end-title').style.color = 'var(--green)';
-  document.getElementById('end-title').textContent =
-`★ YOU GOT OUT ★`;
-
+  document.getElementById('end-title').textContent = '★ YOU GOT OUT ★';
   document.getElementById('end-body').textContent =
-`The cold Maine air hits you like a gift.
+`The cold air hits you like a gift. The Brat is right there, exhaust curling into the dark pines.
 
-The Brat is right there — engine idling, exhaust curling up into the dark pines. The dash lights glow amber inside. Ida is in the passenger seat. She did not bring you coffee. She knew you'd take too long.
-
-You open the door. You slide in. You set the boots on the back seat with a satisfying thunk.
-
-Ida looks at you. She looks at the boots. She looks back at the road.
+You slide in and set the boots on the back seat with a satisfying thunk. Ida looks at you, at the boots, back at the road.
 
 "Took you long enough."
 
 "Ayuh," you say.
 
-She puts it in gear. The Brat rattles down Route 1 toward the boat launch. The sky is beginning, very faintly, to consider the possibility of dawn.
+She drops it into gear and the Brat rattles down Route 1 toward the boat launch. The sky is just beginning to consider dawn. You are going to catch a fish today. You can feel it.
 
-You are going to catch a fish today.
-You can feel it.
-
-────────────────────────────────────
-TIME REMAINING: ${timeLeft} minutes
-DRY WIT FINAL SCORE: ${witScore}/100
+──────────────────
+TIME TO SPARE: ${t} minutes
+DRY WIT: ${G.wit}/100    AYUH LEFT: ${G.ayuh}
 RATING: ${rating}
-────────────────────────────────────`;
-
+──────────────────`;
   document.getElementById('end-score').textContent =
-    G.hasBoots && G.hasFlannel ? '[ ACHIEVED: Full Maine Loadout ]'
-    : G.hasBoots && G.hasMoxie ? '[ ACHIEVED: Fueled by Moxie ]'
-    : '[ Boots in hand. Mission complete. ]';
-
-  endScreen.classList.add('show');
+    (G.hasFlannel ? '[ Full Maine Loadout ]' : '[ Boots in hand. Mission complete. ]');
+  es.classList.add('show');
 }
 
-function triggerLoss() {
+function triggerLoss(){
+  if (G.gameOver) return;
   G.gameOver = true;
-
-  const endScreen = document.getElementById('end-screen');
-  endScreen.style.color = 'var(--red)';
-
+  const es = document.getElementById('end-screen');
+  es.style.color = 'var(--red)';
   document.getElementById('end-title').style.color = 'var(--red)';
-  document.getElementById('end-title').textContent =
-`✖ GAME OVER ✖`;
-
+  document.getElementById('end-title').textContent = '✖ GAME OVER ✖';
   document.getElementById('end-body').textContent =
 `The sky goes pale over Casco Bay.
 
-You hear Ida put the Brat into gear from somewhere on the other side of the plate glass. She waits — approximately three seconds, which for Ida is an eternity of mercy — and then she pulls out of the lot.
+From the far side of the plate glass you hear the Brat drop into gear. Ida waits — three seconds, an eternity of mercy — then pulls out of the lot. She'll be at the boat launch alone, with the rods. She'll catch three bass by seven and never tell you about them.
 
-She will be at the boat launch. Alone. With the rods. She will catch three bass by seven AM. She will not tell you about them.
+Inside, a tourist from Greenwich asks an associate to explain the heritage of the Bean Boot for the fifth time.
 
-Inside L.L. Bean, a tourist from Greenwich asks a floor associate to explain the heritage of the Bean Boot to him for the fifth time.
-
-You are still in the Flannel Racks, holding a chamois shirt, wondering where your life went.
+You are ${G.hasBoots ? 'holding your boots, going nowhere' : 'still bootless, somewhere near the flannel'}.
 
 Morning fishing: MISSED.
 Ida: FURIOUS (quietly, which is worse).
-Boots: STILL NOT GOTTEN.
-
-────────────────────────────────────
-"He came in for boots. He never came back.
- We assume he's still in there somewhere."
-          — Ida, 2025
-────────────────────────────────────`;
-
-  document.getElementById('end-score').textContent =
-    '[ The Flatlanders have won. This time. ]';
-
-  endScreen.classList.add('show');
+──────────────────
+"He came in for boots. He never came back."
+                              — Ida`;
+  document.getElementById('end-score').textContent = '[ The Flatlanders have won. This time. ]';
+  es.classList.add('show');
 }
 
 // ═══════════════════════════════════════════════
-//  INTRO / BOOT
+//  BOOT / INTRO
 // ═══════════════════════════════════════════════
-function beginGame() {
+function beginGame(){
   document.getElementById('intro-screen').classList.add('hidden');
   initGame();
 }
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && !document.getElementById('intro-screen').classList.contains('hidden')) {
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Enter' && !document.getElementById('intro-screen').classList.contains('hidden')){
     beginGame();
   }
 });
-
-// Show intro on load
 document.getElementById('intro-screen').classList.remove('hidden');
 </script>
 </body>
